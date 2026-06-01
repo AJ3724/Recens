@@ -2,17 +2,18 @@ import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'db.dart';
 
-/// GET  /get_expiry
-/// Returns all items from `predictions` that still need expiry confirmation.
-///
-/// POST /set_expiry
-/// Body: { "id": <int>, "initial_life": <double> }
-/// Updates the item's initial_life in the database.
-
-Future<Response> getExpiryHandler(Request request) async {
+/// GET  /get_missing_items
+/// Fetches only the items that need a response from the user.
+Future<Response> getMissingItemsHandler(Request request) async {
   try {
     final conn   = await openDb();
-    final result = await conn.execute('SELECT * FROM predictions WHERE Confirmed = 0');
+    
+    // 1. We added 'id' so the app knows which alert to update.
+    // 2. We explicitly check 'IS NULL' so new alerts show up.
+    final result = await conn.execute(
+      'SELECT id, item_name, message FROM pending_alerts '
+      'WHERE user_response IS NULL'
+    );
 
     final items = result.rows.map((row) {
       final map = <String, dynamic>{};
@@ -36,25 +37,29 @@ Future<Response> getExpiryHandler(Request request) async {
   }
 }
 
-Future<Response> setExpiryHandler(Request request) async {
+/// POST /set_response
+/// Updates the user's choice and sets the timestamp.
+Future<Response> setResponseHandler(Request request) async {
   try {
     final body = await request.readAsString();
     final data = jsonDecode(body) as Map<String, dynamic>;
 
-    final id          = data['id'];
-    final initialLife = data['initial_life'];
+    final id = data['id'];
+    final userResponse = data['user_response'];
 
-    if (id == null || initialLife == null) {
+    if (id == null || userResponse == null) {
       return Response.badRequest(
-        body:    jsonEncode({'error': 'id and initial_life are required'}),
+        body:    jsonEncode({'error': 'id and user_response are required'}),
         headers: {'Content-Type': 'application/json'},
       );
     }
 
     final conn = await openDb();
+    
+    // We update the response and use NOW() to save the exact completion time
     await conn.execute(
-      'UPDATE predictions SET initial_life = :life , Confirmed = 1 WHERE id = :id',
-      {'life': initialLife, 'id': id},
+      'UPDATE pending_alerts SET user_response = :response, responded_at = NOW() WHERE id = :id',
+      {'response': userResponse, 'id': id},
     );
     await conn.close();
 
@@ -62,6 +67,7 @@ Future<Response> setExpiryHandler(Request request) async {
       jsonEncode({'success': true}),
       headers: {'Content-Type': 'application/json'},
     );
+
   } catch (e) {
     return Response.internalServerError(
       body:    jsonEncode({'error': 'DB error: $e'}),

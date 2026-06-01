@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import '../theme.dart';
+import '../widgets/app_header.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MODEL
@@ -12,7 +13,7 @@ class ExpiryItem {
   final int id;
   final String name;
   final String status;
-  double initialLife; // days — can be updated by user
+  double initialLife;
   bool confirmed;
 
   ExpiryItem({
@@ -24,12 +25,13 @@ class ExpiryItem {
   });
 
   factory ExpiryItem.fromJson(Map<String, dynamic> j) => ExpiryItem(
-        id:          int.tryParse(j['id']?.toString() ?? '0') ?? 0,
-        name:        j['item_name']?.toString() ?? 'Unknown',
-        status:      j['status']?.toString() ?? 'acceptable',
+        id: int.tryParse(j['id']?.toString() ?? '0') ?? 0,
+        name: j['item_name']?.toString() ?? 'Unknown',
+        status: j['status']?.toString() ?? 'acceptable',
         initialLife: double.tryParse(
-                       j['initial_life']?.toString() ?? '7',
-                     ) ?? 7,
+                j['initial_life']?.toString() ?? '7',
+              ) ??
+            7,
       );
 }
 
@@ -45,13 +47,12 @@ class ExpiryScreen extends StatefulWidget {
 }
 
 class _ExpiryScreenState extends State<ExpiryScreen> {
-  List<ExpiryItem> _items    = [];
-  bool             _loading  = true;
-  String?          _error;
+  List<ExpiryItem> _items = [];
+  bool _loading = true;
+  String? _error;
 
-  String get _baseUrl => kIsWeb
-      ? 'http://localhost:8080'
-      : 'http://192.168.1.8:8080';
+  String get _baseUrl =>
+      kIsWeb ? 'http://localhost:8080' : 'http://192.168.1.8:8080';
 
   @override
   void initState() {
@@ -61,7 +62,10 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
 
   // ── Fetch ──────────────────────────────────────────────────────────────────
   Future<void> _loadItems() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final res = await http
           .get(Uri.parse('$_baseUrl/get_expiry'))
@@ -69,14 +73,20 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
       if (res.statusCode == 200) {
         final raw = jsonDecode(res.body) as List;
         setState(() {
-          _items   = raw.map((j) => ExpiryItem.fromJson(j)).toList();
+          _items = raw.map((j) => ExpiryItem.fromJson(j)).toList();
           _loading = false;
         });
       } else {
-        setState(() { _error = 'Server error ${res.statusCode}'; _loading = false; });
+        setState(() {
+          _error = 'Server error ${res.statusCode}';
+          _loading = false;
+        });
       }
     } catch (e) {
-      setState(() { _error = 'Could not reach server.\n$e'; _loading = false; });
+      setState(() {
+        _error = 'Could not reach server.\n$e';
+        _loading = false;
+      });
     }
   }
 
@@ -88,25 +98,23 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'id': item.id, 'initial_life': item.initialLife}),
       );
-    } catch (_) {
-      // Silent — local state already updated
-    }
+    } catch (_) {}
   }
 
   // ── Date picker dialog ─────────────────────────────────────────────────────
   Future<void> _pickDate(ExpiryItem item) async {
-    final now    = DateTime.now();
+    final now = DateTime.now();
     final picked = await showDatePicker(
-      context:     context,
+      context: context,
       initialDate: now.add(const Duration(days: 7)),
-      firstDate:   now,
-      lastDate:    now.add(const Duration(days: 365)),
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 365)),
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
           colorScheme: const ColorScheme.light(
-            primary:   AppColors.primary,
+            primary: AppColors.primary,
             onPrimary: Colors.white,
-            surface:   Colors.white,
+            surface: Colors.white,
           ),
         ),
         child: child!,
@@ -117,33 +125,41 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
     final days = picked.difference(now).inDays.toDouble().clamp(1.0, 365.0);
     setState(() {
       item.initialLife = days;
-      item.confirmed   = true;
+      item.confirmed = true;
     });
     await _saveExpiry(item);
   }
 
   // ── Use default ────────────────────────────────────────────────────────────
   Future<void> _useDefault(ExpiryItem item) async {
-    setState(() { item.confirmed = true; });
+    setState(() => item.confirmed = true);
     await _saveExpiry(item);
   }
 
   // ── Status colour ──────────────────────────────────────────────────────────
   Color _statusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'spoiled':    return AppColors.spoiledColor;
-      case 'danger':     return AppColors.dangerColor;
-      case 'acceptable': return AppColors.acceptColor;
-      default:           return AppColors.goodColor;
+      case 'spoiled':
+        return AppColors.spoiledColor;
+      case 'danger':
+        return AppColors.dangerColor;
+      case 'acceptable':
+        return AppColors.acceptColor;
+      default:
+        return AppColors.goodColor;
     }
   }
 
   Color _statusBg(String status) {
     switch (status.toLowerCase()) {
-      case 'spoiled':    return AppColors.spoiledBg;
-      case 'danger':     return AppColors.dangerBg;
-      case 'acceptable': return AppColors.acceptBg;
-      default:           return AppColors.goodBg;
+      case 'spoiled':
+        return AppColors.spoiledBg;
+      case 'danger':
+        return AppColors.dangerBg;
+      case 'acceptable':
+        return AppColors.acceptBg;
+      default:
+        return AppColors.goodBg;
     }
   }
 
@@ -151,30 +167,27 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
   // BUILD
   // ─────────────────────────────────────────────────────────────────────────
 
+  int get _confirmedCount => _items.where((i) => i.confirmed).length;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          // ── Header ─────────────────────────────────────────────────────────
-          SliverAppBar(
-            pinned:          true,
-            expandedHeight:  130,
-            backgroundColor: AppColors.primary,
-            elevation:       0,
-            scrolledUnderElevation: 0,
-            flexibleSpace: FlexibleSpaceBar(
-              collapseMode: CollapseMode.pin,
-              background:   _ExpiryHeader(onRefresh: _loadItems),
-            ),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(36),
-              child: _SummaryBar(items: _items),
-            ),
+          // ── Unified header ────────────────────────────────────────────────
+          AppHeader(
+            title: 'Expiry Setup',
+            subtitle: 'Confirm or set shelf life for each item',
+            onRefresh: _loadItems,
+            onNotification: null, // placeholder — wire up as needed
+            expandedHeight: 130,
+            bottomWidget: _items.isEmpty
+                ? null
+                : _SummaryBar(items: _items),
           ),
 
-          // ── Body ───────────────────────────────────────────────────────────
+          // ── Body ─────────────────────────────────────────────────────────
           if (_loading)
             const SliverFillRemaining(
               child: Center(
@@ -221,11 +234,11 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, i) => _ItemCard(
-                    item:       _items[i],
+                    item: _items[i],
                     statusColor: _statusColor(_items[i].status),
-                    statusBg:    _statusBg(_items[i].status),
-                    onAddDate:   () => _pickDate(_items[i]),
-                    onDefault:   () => _useDefault(_items[i]),
+                    statusBg: _statusBg(_items[i].status),
+                    onAddDate: () => _pickDate(_items[i]),
+                    onDefault: () => _useDefault(_items[i]),
                   ),
                   childCount: _items.length,
                 ),
@@ -238,101 +251,34 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// HEADER
+// SUMMARY BAR  (pinned below the header)
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _ExpiryHeader extends StatelessWidget {
-  final VoidCallback onRefresh;
-  const _ExpiryHeader({required this.onRefresh});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.medium],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      padding: EdgeInsets.only(
-        top:    MediaQuery.of(context).padding.top + 12,
-        bottom: 40,
-        left:   20,
-        right:  20,
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.event_available_rounded,
-              color: Colors.white70, size: 20),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Expiry Setup',
-                  style: TextStyle(
-                    color:      Colors.white,
-                    fontSize:   22,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  'Confirm or set shelf life for each item',
-                  style: TextStyle(
-                      color: Colors.white60, fontSize: 12),
-                ),
-              ],
-            ),
-          ),
-          GestureDetector(
-            onTap: onRefresh,
-            child: Container(
-              width: 36, height: 36,
-              decoration: BoxDecoration(
-                color:         Colors.white.withOpacity(0.15),
-                borderRadius:  BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.refresh_rounded,
-                  size: 18, color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// SUMMARY BAR
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _SummaryBar extends StatelessWidget {
+class _SummaryBar extends StatelessWidget implements PreferredSizeWidget {
   final List<ExpiryItem> items;
   const _SummaryBar({required this.items});
 
   @override
+  Size get preferredSize => const Size.fromHeight(46);
+
+  @override
   Widget build(BuildContext context) {
-    final total     = items.length;
+    final total = items.length;
     final confirmed = items.where((i) => i.confirmed).length;
-    final fraction  = total > 0 ? confirmed / total : 0.0;
+    final fraction = total > 0 ? confirmed / total : 0.0;
 
     return Container(
       color: AppColors.primary,
       padding: const EdgeInsets.fromLTRB(20, 6, 20, 10),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 '$confirmed / $total confirmed',
-                style: const TextStyle(
-                    color: Colors.white70, fontSize: 11),
+                style: const TextStyle(color: Colors.white70, fontSize: 11),
               ),
               Text(
                 '${(fraction * 100).toInt()}%',
@@ -347,11 +293,11 @@ class _SummaryBar extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              value:           fraction,
-              minHeight:       4,
+              value: fraction,
+              minHeight: 4,
               backgroundColor: Colors.white.withOpacity(0.15),
-              valueColor:      const AlwaysStoppedAnimation(
-                  Color(0xFF6EE0A0)),
+              valueColor:
+                  const AlwaysStoppedAnimation(Color(0xFF6EE0A0)),
             ),
           ),
         ],
@@ -366,8 +312,8 @@ class _SummaryBar extends StatelessWidget {
 
 class _ItemCard extends StatelessWidget {
   final ExpiryItem item;
-  final Color      statusColor;
-  final Color      statusBg;
+  final Color statusColor;
+  final Color statusBg;
   final VoidCallback onAddDate;
   final VoidCallback onDefault;
 
@@ -386,7 +332,7 @@ class _ItemCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color:        AppColors.surface,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: item.confirmed
@@ -396,22 +342,22 @@ class _ItemCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color:      Colors.black.withOpacity(0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 8,
-            offset:     const Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
         children: [
-          // ── Image placeholder ─────────────────────────────────────────────
+          // ── Image placeholder ─────────────────────────────────────────
           Container(
-            width:  80,
+            width: 80,
             height: 90,
             decoration: BoxDecoration(
-              color:        AppColors.surfaceAlt,
+              color: AppColors.surfaceAlt,
               borderRadius: const BorderRadius.only(
-                topLeft:    Radius.circular(16),
+                topLeft: Radius.circular(16),
                 bottomLeft: Radius.circular(16),
               ),
             ),
@@ -419,40 +365,40 @@ class _ItemCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.image_rounded,
-                    size: 30, color: AppColors.textMuted.withOpacity(0.5)),
+                    size: 30,
+                    color: AppColors.textMuted.withOpacity(0.5)),
                 const SizedBox(height: 4),
                 Text(
                   item.name.substring(0, 1).toUpperCase(),
                   style: TextStyle(
-                    fontSize:   22,
+                    fontSize: 22,
                     fontWeight: FontWeight.w800,
-                    color:      AppColors.medium.withOpacity(0.4),
+                    color: AppColors.medium.withOpacity(0.4),
                   ),
                 ),
               ],
             ),
           ),
 
-          // ── Content ───────────────────────────────────────────────────────
+          // ── Content ───────────────────────────────────────────────────
           Expanded(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Name + status badge
                   Row(
                     children: [
                       Expanded(
                         child: Text(
                           item.name,
                           style: const TextStyle(
-                            fontSize:   15,
+                            fontSize: 15,
                             fontWeight: FontWeight.w700,
-                            color:      AppColors.textPrimary,
+                            color: AppColors.textPrimary,
                           ),
-                          maxLines:  1,
-                          overflow:  TextOverflow.ellipsis,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -460,30 +406,28 @@ class _ItemCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color:        statusBg,
+                          color: statusBg,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           item.status,
                           style: TextStyle(
-                            fontSize:   9,
+                            fontSize: 9,
                             fontWeight: FontWeight.w700,
-                            color:      statusColor,
+                            color: statusColor,
                           ),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
-
-                  // Days info
                   Row(
                     children: [
                       Icon(
                         item.confirmed
                             ? Icons.check_circle_rounded
                             : Icons.schedule_rounded,
-                        size:  13,
+                        size: 13,
                         color: item.confirmed
                             ? AppColors.goodColor
                             : AppColors.textMuted,
@@ -495,7 +439,7 @@ class _ItemCard extends StatelessWidget {
                             : 'Default: $days day${days == 1 ? '' : 's'}',
                         style: TextStyle(
                           fontSize: 11,
-                          color:    item.confirmed
+                          color: item.confirmed
                               ? AppColors.goodText
                               : AppColors.textMuted,
                         ),
@@ -503,41 +447,36 @@ class _ItemCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 10),
-
-                  // Buttons
                   if (!item.confirmed)
                     Row(
                       children: [
-                        // Add date button
                         Expanded(
                           child: _CardButton(
-                            label:  'Add Date',
-                            icon:   Icons.calendar_today_rounded,
-                            color:  AppColors.primary,
+                            label: 'Add Date',
+                            icon: Icons.calendar_today_rounded,
+                            color: AppColors.primary,
                             filled: true,
-                            onTap:  onAddDate,
+                            onTap: onAddDate,
                           ),
                         ),
                         const SizedBox(width: 8),
-                        // Default button
                         Expanded(
                           child: _CardButton(
-                            label:  'Default',
-                            icon:   Icons.auto_awesome_rounded,
-                            color:  AppColors.medium,
+                            label: 'Default',
+                            icon: Icons.auto_awesome_rounded,
+                            color: AppColors.medium,
                             filled: false,
-                            onTap:  onDefault,
+                            onTap: onDefault,
                           ),
                         ),
                       ],
                     )
                   else
-                    // Confirmed state
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color:        AppColors.goodBg,
+                        color: AppColors.goodBg,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Row(
@@ -549,8 +488,8 @@ class _ItemCard extends StatelessWidget {
                           Text(
                             'Expiry confirmed',
                             style: TextStyle(
-                              fontSize:   11,
-                              color:      AppColors.goodText,
+                              fontSize: 11,
+                              color: AppColors.goodText,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -572,10 +511,10 @@ class _ItemCard extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _CardButton extends StatelessWidget {
-  final String   label;
+  final String label;
   final IconData icon;
-  final Color    color;
-  final bool     filled;
+  final Color color;
+  final bool filled;
   final VoidCallback onTap;
 
   const _CardButton({
@@ -593,9 +532,9 @@ class _CardButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color:        filled ? color : Colors.transparent,
+          color: filled ? color : Colors.transparent,
           borderRadius: BorderRadius.circular(9),
-          border:       Border.all(
+          border: Border.all(
             color: filled ? color : color.withOpacity(0.5),
             width: 1,
           ),
@@ -603,16 +542,14 @@ class _CardButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon,
-                size:  13,
-                color: filled ? Colors.white : color),
+            Icon(icon, size: 13, color: filled ? Colors.white : color),
             const SizedBox(width: 5),
             Text(
               label,
               style: TextStyle(
-                fontSize:   12,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color:      filled ? Colors.white : color,
+                color: filled ? Colors.white : color,
               ),
             ),
           ],

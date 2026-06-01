@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import '../theme.dart';
 import '../widgets/shared.dart';
+import '../widgets/app_header.dart';
 
 // ── Embedded recipe data ───────────────────────────────────────────────────────
 const String _kRecipesJson = r'''
@@ -144,10 +145,11 @@ class _RecipesScreenState extends State<RecipesScreen> {
   String _selectedCategory = 'All';
   _TabMode _tab = _TabMode.aiRecommended;
   bool _ingredientMode = false;
-  
-String get _apiUrl => kIsWeb
-    ? 'http://localhost:8080/get_recipes'
-    : 'http://192.168.1.8:8080/get_recipes';
+
+  String get _apiUrl => kIsWeb
+      ? 'http://localhost:8080/get_recipes'
+      : 'http://192.168.1.8:8080/get_recipes';
+
   @override
   void initState() {
     super.initState();
@@ -293,35 +295,28 @@ String get _apiUrl => kIsWeb
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          // ── Header ─────────────────────────────────────────────────────────
-          SliverAppBar(
-            pinned: true,
-            expandedHeight: 150,
-            backgroundColor: AppColors.surface,
-            elevation: 0,
-            scrolledUnderElevation: 0,
-            flexibleSpace: FlexibleSpaceBar(
-              collapseMode: CollapseMode.pin,
-              background: _RecipesHeader(onRefresh: _fetchApiRecipes),
-            ),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(56),
-              child: _TopBar(
-                searchController: _searchController,
-                tab: _tab,
-                ingredientMode: _ingredientMode,
-                onTabChanged: (t) {
-                  setState(() {
-                    _tab = t;
-                    if (t == _TabMode.allRecipes) {
-                      _ingredientMode = false;
-                      _applyLocalFilter();
-                    }
-                  });
-                },
-                onIngredientModeChanged: (v) =>
-                    setState(() => _ingredientMode = v),
-              ),
+          // ── Unified header ────────────────────────────────────────────────
+          AppHeader(
+            title: "Today's Menu",
+            subtitle: 'R E C E N S',
+            onRefresh: _fetchApiRecipes,
+            onNotification: null, // placeholder — wire up as needed
+            expandedHeight: 160,
+            bottomWidget: _TopBar(
+              searchController: _searchController,
+              tab: _tab,
+              ingredientMode: _ingredientMode,
+              onTabChanged: (t) {
+                setState(() {
+                  _tab = t;
+                  if (t == _TabMode.allRecipes) {
+                    _ingredientMode = false;
+                    _applyLocalFilter();
+                  }
+                });
+              },
+              onIngredientModeChanged: (v) =>
+                  setState(() => _ingredientMode = v),
             ),
           ),
 
@@ -459,7 +454,7 @@ String get _apiUrl => kIsWeb
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: _categories.length,
-              separatorBuilder: (_, _) => const SizedBox(width: 8),
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (context, i) {
                 final cat = _categories[i];
                 final isSelected = cat == _selectedCategory;
@@ -542,8 +537,7 @@ String get _apiUrl => kIsWeb
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(12),
-                border:
-                    Border.all(color: AppColors.border, width: 0.8),
+                border: Border.all(color: AppColors.border, width: 0.8),
               ),
               child: TextField(
                 controller: _ingredientsController,
@@ -563,8 +557,7 @@ String get _apiUrl => kIsWeb
                         size: 18, color: AppColors.textMuted),
                   ),
                   border: InputBorder.none,
-                  contentPadding:
-                      EdgeInsets.fromLTRB(0, 12, 16, 12),
+                  contentPadding: EdgeInsets.fromLTRB(0, 12, 16, 12),
                 ),
               ),
             ),
@@ -629,7 +622,8 @@ String get _apiUrl => kIsWeb
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('${results.length} recipe${results.length == 1 ? '' : 's'} found',
+                  Text(
+                      '${results.length} recipe${results.length == 1 ? '' : 's'} found',
                       style: const TextStyle(
                           fontSize: 11,
                           color: AppColors.textMuted,
@@ -655,7 +649,7 @@ String get _apiUrl => kIsWeb
 }
 
 // ── Top Bar ───────────────────────────────────────────────────────────────────
-class _TopBar extends StatelessWidget {
+class _TopBar extends StatelessWidget implements PreferredSizeWidget {
   final TextEditingController searchController;
   final _TabMode tab;
   final bool ingredientMode;
@@ -669,6 +663,9 @@ class _TopBar extends StatelessWidget {
     required this.onTabChanged,
     required this.onIngredientModeChanged,
   });
+
+  @override
+  Size get preferredSize => const Size.fromHeight(56);
 
   @override
   Widget build(BuildContext context) {
@@ -775,8 +772,7 @@ class _TabBtn extends StatelessWidget {
           children: [
             Icon(icon,
                 size: 13,
-                color:
-                    active ? Colors.white : AppColors.textSub),
+                color: active ? Colors.white : AppColors.textSub),
             const SizedBox(width: 4),
             Text(label,
                 style: TextStyle(
@@ -787,95 +783,6 @@ class _TabBtn extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-// ── Recipes Header ────────────────────────────────────────────────────────────
-class _RecipesHeader extends StatelessWidget {
-  final VoidCallback onRefresh;
-  const _RecipesHeader({required this.onRefresh});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.medium],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 8,
-        bottom: 45,
-        left: 20,
-        right: 20,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const SizedBox(width: 36),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _OrnamentalDivider(),
-              const SizedBox(height: 4),
-              const Text(
-                'R E C E N S',
-                style: TextStyle(
-                    fontSize: 9,
-                    letterSpacing: 4,
-                    color: Colors.white60,
-                    fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(height: 2),
-              const Text(
-                "Today's Menu",
-                style: TextStyle(
-                    fontSize: 26,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    height: 1.1),
-              ),
-              const SizedBox(height: 4),
-              _OrnamentalDivider(),
-            ],
-          ),
-          GestureDetector(
-            onTap: onRefresh,
-            child: Container(
-              width: 36, height: 36,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.refresh_rounded,
-                  size: 16, color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _OrnamentalDivider extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(width: 36, height: 0.8, color: Colors.white38),
-        const SizedBox(width: 6),
-        Container(
-            width: 5,
-            height: 5,
-            decoration: const BoxDecoration(
-                color: Colors.white38, shape: BoxShape.circle)),
-        const SizedBox(width: 6),
-        Container(width: 36, height: 0.8, color: Colors.white38),
-      ],
     );
   }
 }
@@ -899,10 +806,8 @@ class _RecipeSection<T> extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Category divider label
           Row(children: [
-            Container(
-                width: 20, height: 0.8, color: AppColors.divider),
+            Container(width: 20, height: 0.8, color: AppColors.divider),
             const SizedBox(width: 10),
             Text(
               category.toUpperCase(),
@@ -960,7 +865,8 @@ class _ApiRecipeRow extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 52, height: 52,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
                 color: AppColors.surfaceAlt,
                 borderRadius: BorderRadius.circular(12),
@@ -1049,7 +955,8 @@ class _LocalRecipeRow extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 52, height: 52,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
                 color: AppColors.surfaceAlt,
                 borderRadius: BorderRadius.circular(12),
@@ -1181,7 +1088,8 @@ class _RecipeDetailSheet extends StatelessWidget {
               const SizedBox(height: 12),
               Center(
                 child: Container(
-                  width: 36, height: 4,
+                  width: 36,
+                  height: 4,
                   decoration: BoxDecoration(
                       color: AppColors.border,
                       borderRadius: BorderRadius.circular(2)),
@@ -1192,7 +1100,6 @@ class _RecipeDetailSheet extends StatelessWidget {
                   controller: scrollController,
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
                   children: [
-                    // ── Image placeholder ─────────────────────────────────
                     Container(
                       height: 130,
                       decoration: BoxDecoration(
@@ -1218,10 +1125,7 @@ class _RecipeDetailSheet extends StatelessWidget {
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 18),
-
-                    // ── Name ──────────────────────────────────────────────
                     Text(recipe.name,
                         style: const TextStyle(
                             fontSize: 22,
@@ -1229,7 +1133,6 @@ class _RecipeDetailSheet extends StatelessWidget {
                             color: AppColors.textPrimary,
                             height: 1.1)),
                     const SizedBox(height: 8),
-
                     Row(children: [
                       _Chip(
                           label: recipe.category,
@@ -1243,12 +1146,9 @@ class _RecipeDetailSheet extends StatelessWidget {
                             bg: AppColors.goodBg),
                       ],
                     ]),
-
                     const SizedBox(height: 18),
                     Container(height: 0.8, color: AppColors.border),
                     const SizedBox(height: 18),
-
-                    // ── Legend ────────────────────────────────────────────
                     if (hasContext) ...[
                       Row(children: [
                         _LegendDot(color: AppColors.recipePresentText),
@@ -1265,8 +1165,6 @@ class _RecipeDetailSheet extends StatelessWidget {
                       ]),
                       const SizedBox(height: 12),
                     ],
-
-                    // ── Section label ─────────────────────────────────────
                     const Text('INGREDIENTS',
                         style: TextStyle(
                             fontSize: 10,
@@ -1274,8 +1172,6 @@ class _RecipeDetailSheet extends StatelessWidget {
                             color: AppColors.medium,
                             fontWeight: FontWeight.w700)),
                     const SizedBox(height: 10),
-
-                    // ── Ingredient list ───────────────────────────────────
                     Container(
                       decoration: BoxDecoration(
                         color: AppColors.surface,
@@ -1340,8 +1236,10 @@ class _RecipeDetailSheet extends StatelessWidget {
                                         fontWeight: FontWeight.w500,
                                         color: hasContext
                                             ? (present
-                                                ? AppColors.recipePresentText
-                                                : AppColors.recipeMissingText)
+                                                ? AppColors
+                                                    .recipePresentText
+                                                : AppColors
+                                                    .recipeMissingText)
                                             : AppColors.textPrimary,
                                       )),
                                 ),
@@ -1369,15 +1267,16 @@ class _RecipeDetailSheet extends StatelessWidget {
                                       borderRadius:
                                           BorderRadius.circular(6),
                                       border: Border.all(
-                                          color:
-                                              AppColors.spoiledColor.withOpacity(0.3),
+                                          color: AppColors.spoiledColor
+                                              .withOpacity(0.3),
                                           width: 0.6),
                                     ),
                                     child: const Text('needed',
                                         style: TextStyle(
                                             fontSize: 9,
                                             color: AppColors.spoiledText,
-                                            fontWeight: FontWeight.w600)),
+                                            fontWeight:
+                                                FontWeight.w600)),
                                   ),
                                 ],
                               ]),
@@ -1390,8 +1289,6 @@ class _RecipeDetailSheet extends StatelessWidget {
                         }).toList(),
                       ),
                     ),
-
-                    // ── Summary ───────────────────────────────────────────
                     if (hasContext) ...[
                       const SizedBox(height: 12),
                       Row(children: [
@@ -1410,8 +1307,6 @@ class _RecipeDetailSheet extends StatelessWidget {
                         ],
                       ]),
                     ],
-
-                    // ── AI detail ─────────────────────────────────────────
                     if (apiRecipe != null) ...[
                       const SizedBox(height: 18),
                       Container(height: 0.8, color: AppColors.border),
@@ -1436,9 +1331,8 @@ class _RecipeDetailSheet extends StatelessWidget {
                           apiRecipe!.finalScore.toStringAsFixed(4)),
                       const SizedBox(height: 14),
                       FreshnessBar(
-                        fraction: double.tryParse(
-                                    apiRecipe!.matchPct
-                                        .replaceAll('%', '')) !=
+                        fraction: double.tryParse(apiRecipe!.matchPct
+                                    .replaceAll('%', '')) !=
                                 null
                             ? double.parse(apiRecipe!.matchPct
                                     .replaceAll('%', '')) /
@@ -1447,7 +1341,6 @@ class _RecipeDetailSheet extends StatelessWidget {
                         color: AppColors.medium,
                       ),
                     ],
-
                     const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
@@ -1481,9 +1374,11 @@ class _LegendDot extends StatelessWidget {
   const _LegendDot({required this.color});
 
   @override
-  Widget build(BuildContext context) =>
-      Container(width: 10, height: 10,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle));
+  Widget build(BuildContext context) => Container(
+      width: 10,
+      height: 10,
+      decoration:
+          BoxDecoration(color: color, shape: BoxShape.circle));
 }
 
 class _SummaryChip extends StatelessWidget {

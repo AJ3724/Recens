@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import '../theme.dart';
 import '../services/notification_service.dart';
+import '../widgets/app_header.dart';
 
 // ── Model ─────────────────────────────────────────────────────────────────────
 enum AlertType { good, acceptable, danger, spoiled }
@@ -180,8 +181,8 @@ class _AlertsScreenState extends State<AlertsScreen>
   static const int _fridgeHumidity = 72;
 
   String get _apiUrl => kIsWeb
-    ? 'http://localhost:8080/get_alerts'
-    : 'http://192.168.1.8:8080/get_alerts';
+      ? 'http://localhost:8080/get_alerts'
+      : 'http://192.168.1.8:8080/get_alerts';
 
   @override
   void initState() {
@@ -262,57 +263,37 @@ class _AlertsScreenState extends State<AlertsScreen>
   int _countOf(AlertType type) =>
       _alerts.where((a) => a.type == type).length;
 
+  void _onNotification() {
+    NotificationService.showNotification(
+      id: 0,
+      title: '🧊 Fridge Check Reminder',
+      body: 'Time to check your fridge! Some items may need attention.',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filtered = _filteredAlerts;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Alerts'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Row(
-              children: [
-                if (_alerts.isNotEmpty)
-                  Text('${_alerts.length}',
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.textSub)),
-                const SizedBox(width: 10),
-                GestureDetector(
-                  onTap: () {
-                    NotificationService.showNotification(
-                      id: 0,
-                      title: '🧊 Fridge Check Reminder',
-                      body:
-                          'Time to check your fridge! Some items may need attention.',
-                    );
-                  },
-                  child: const Icon(Icons.notifications_active_rounded,
-                      color: AppColors.textSub),
-                ),
-                const SizedBox(width: 10),
-                GestureDetector(
-                  onTap: _fetchAlerts,
-                  child: const Icon(Icons.refresh_rounded,
-                      color: AppColors.textSub),
-                ),
-                const SizedBox(width: 16),
-              ],
-            ),
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(0.5),
-          child: Container(height: 0.5, color: AppColors.border),
-        ),
-      ),
+      backgroundColor: AppColors.background,
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? _loadingBody()
           : _error != null
-              ? _ErrorView(message: _error!, onRetry: _fetchAlerts)
+              ? _errorBody()
               : CustomScrollView(
                   slivers: [
+                    // ── Unified header ──────────────────────────────────
+                    AppHeader(
+                      title: 'Alerts',
+                      subtitle: _alerts.isEmpty
+                          ? null
+                          : '${_alerts.length} active alert${_alerts.length == 1 ? '' : 's'}',
+                      onRefresh: _fetchAlerts,
+                      onNotification: _onNotification,
+                    ),
+
+                    // ── Body ────────────────────────────────────────────
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -324,7 +305,6 @@ class _AlertsScreenState extends State<AlertsScreen>
                               humidity: _fridgeHumidity,
                             ),
                             const SizedBox(height: 16),
-
                             Row(
                               children: [
                                 _CountCard(
@@ -376,17 +356,13 @@ class _AlertsScreenState extends State<AlertsScreen>
                                 ),
                               ],
                             ),
-
                             const SizedBox(height: 16),
-
                             _FilterBar(
                               active: _activeFilter,
                               onSelect: (f) =>
                                   setState(() => _activeFilter = f),
                             ),
-
                             const SizedBox(height: 14),
-
                             Row(
                               children: [
                                 Text(
@@ -461,6 +437,21 @@ class _AlertsScreenState extends State<AlertsScreen>
                 ),
     );
   }
+
+  Widget _loadingBody() => const Center(child: CircularProgressIndicator());
+
+  Widget _errorBody() => CustomScrollView(
+        slivers: [
+          AppHeader(
+            title: 'Alerts',
+            onRefresh: _fetchAlerts,
+            onNotification: _onNotification,
+          ),
+          SliverFillRemaining(
+            child: _ErrorView(message: _error!, onRetry: _fetchAlerts),
+          ),
+        ],
+      );
 }
 
 // ── Fridge Status Card ────────────────────────────────────────────────────────
