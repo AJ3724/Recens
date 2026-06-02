@@ -11,7 +11,7 @@ Future<Response> getMissingItemsHandler(Request request) async {
     // 1. We added 'id' so the app knows which alert to update.
     // 2. We explicitly check 'IS NULL' so new alerts show up.
     final result = await conn.execute(
-      'SELECT id, item_name, message FROM pending_alerts '
+      'SELECT id, item_name FROM pending_alerts '
       'WHERE user_response IS NULL'
     );
 

@@ -8,6 +8,7 @@ import 'package:recens_backend/get_recipes.dart';
 import 'package:recens_backend/get_items.dart';
 import 'package:recens_backend/get_alerts.dart';
 import 'package:recens_backend/get_expiry.dart';
+import 'package:recens_backend/get_missing_items.dart';
 
 void main() async {
   final env  = DotEnv(includePlatformEnvironment: true)..load();
@@ -19,6 +20,8 @@ void main() async {
     ..get('/get_items',   getItemsHandler)
     ..get('/get_alerts',  getAlertsHandler)
     ..get('/get_expiry',  getExpiryHandler)
+    ..get('/get_missing_items', getMissingItemsHandler) // ✅ Leaves this as a GET request
+    ..post('/set_response', setResponseHandler)         // ✅ Fixed: Changed to .post and matches the app URL
     ..post('/set_expiry', setExpiryHandler);
 
   // ── Middleware ───────────────────────────────────────────────────────────────
