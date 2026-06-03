@@ -1,23 +1,17 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
-
-/// A unified gradient header used across all screens.
-///
-/// Parameters:
-///   [title]       – main title shown centred
-///   [subtitle]    – smaller line below title (optional)
-///   [onRefresh]   – callback for the refresh icon (shown on the right)
-///   [onNotification] – callback for the bell icon (shown on the left)
-///   [expandedHeight] – collapsed + expanded height (default 130)
-///   [bottomWidget]   – optional widget pinned below the gradient area
-///   [bottomHeight]   – height of [bottomWidget] (needed for PreferredSize)
+import '../screens/report_screen.dart';
+/// A simple fixed gradient header — title + two icon buttons only.
+/// Nothing is pinned below it; screens render extra controls as sliver content.
 class AppHeader extends StatelessWidget {
   final String title;
   final String? subtitle;
   final VoidCallback? onRefresh;
   final VoidCallback? onNotification;
+
+  // Kept for API compatibility — ignored.
   final double expandedHeight;
-  final PreferredSizeWidget? bottomWidget;
+  final PreferredSizeWidget? bottomWidget; // ignored — moved to screen body
 
   const AppHeader({
     super.key,
@@ -31,59 +25,56 @@ class AppHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const double toolbarH = 80.0;
+
     return SliverAppBar(
       pinned: true,
-      expandedHeight: expandedHeight,
+      floating: false,
+      snap: false,
+      expandedHeight: toolbarH,
+      toolbarHeight: toolbarH,
       backgroundColor: AppColors.primary,
       elevation: 0,
       scrolledUnderElevation: 0,
       automaticallyImplyLeading: false,
       flexibleSpace: FlexibleSpaceBar(
-        collapseMode: CollapseMode.pin,
+        collapseMode: CollapseMode.none,
         background: _HeaderBackground(
           title: title,
           subtitle: subtitle,
-          onRefresh: onRefresh,
           onNotification: onNotification,
         ),
       ),
-      bottom: bottomWidget,
     );
   }
 }
 
-// ── Gradient background with centred title ────────────────────────────────────
+// ── Gradient background ───────────────────────────────────────────────────────
 class _HeaderBackground extends StatelessWidget {
   final String title;
   final String? subtitle;
-  final VoidCallback? onRefresh;
   final VoidCallback? onNotification;
 
   const _HeaderBackground({
     required this.title,
     this.subtitle,
-    this.onRefresh,
     this.onNotification,
   });
 
   @override
- @override
-Widget build(BuildContext context) {
-  final topPad = MediaQuery.of(context).padding.top;
-  return Container(
-    decoration: const BoxDecoration(
-      gradient: LinearGradient(
-        colors: [AppColors.primary, AppColors.medium],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.primary, AppColors.medium],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
-    ),
-    child: SafeArea(
-      bottom: false,
-      child: Align(
-        alignment: Alignment.bottomCenter,
+      child: SafeArea(
+        bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -94,6 +85,7 @@ Widget build(BuildContext context) {
               Expanded(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _OrnamentalDivider(),
                     const SizedBox(height: 4),
@@ -125,16 +117,19 @@ Widget build(BuildContext context) {
                 ),
               ),
               _HeaderIconButton(
-                icon: Icons.refresh_rounded,
-                onTap: onRefresh,
+                icon: Icons.bar_chart_rounded,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ReportScreen()),
+                  );
+                },
               ),
             ],
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
 
 // ── Small rounded icon button ─────────────────────────────────────────────────

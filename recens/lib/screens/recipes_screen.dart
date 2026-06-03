@@ -16,8 +16,7 @@ class LocalIngredient {
   final String name;
   final double qty;
   final String unit;
-  const LocalIngredient(
-      {required this.name, required this.qty, required this.unit});
+  const LocalIngredient({required this.name, required this.qty, required this.unit});
   factory LocalIngredient.fromJson(Map<String, dynamic> j) => LocalIngredient(
         name: j['name'] ?? '',
         qty: double.parse(j['qty'].toString()),
@@ -30,18 +29,12 @@ class LocalRecipe {
   final String name;
   final String category;
   final List<LocalIngredient> ingredients;
-  const LocalRecipe(
-      {required this.id,
-      required this.name,
-      required this.category,
-      required this.ingredients});
+  const LocalRecipe({required this.id, required this.name, required this.category, required this.ingredients});
   factory LocalRecipe.fromJson(Map<String, dynamic> j) => LocalRecipe(
         id: j['id'] as int,
         name: j['name'] ?? '',
         category: j['category'] ?? '',
-        ingredients: (j['ingredients'] as List)
-            .map((i) => LocalIngredient.fromJson(i))
-            .toList(),
+        ingredients: (j['ingredients'] as List).map((i) => LocalIngredient.fromJson(i)).toList(),
       );
 }
 
@@ -69,8 +62,7 @@ class RecommendedRecipe {
     return RecommendedRecipe(
       dishName: json['dish_name'] ?? '',
       category: json['category'] ?? '',
-      matchedIngredients:
-          List<String>.from(json['matched_ingredients'] ?? []),
+      matchedIngredients: List<String>.from(json['matched_ingredients'] ?? []),
       cosineScore: double.parse(json['cosine_score'].toString()),
       urgencyScore: double.parse(json['urgency_score'].toString()),
       finalScore: double.parse(json['final_score'].toString()),
@@ -78,50 +70,22 @@ class RecommendedRecipe {
     );
   }
 
-  IconData get categoryIcon {
-    switch (category.toLowerCase()) {
-      case 'main dish':
-        return Icons.restaurant_rounded;
-      case 'side dish':
-        return Icons.grass_rounded;
-      case 'appetizer':
-        return Icons.soup_kitchen_rounded;
-      case 'dessert':
-        return Icons.cake_rounded;
-      case 'breakfast':
-        return Icons.free_breakfast_rounded;
-      case 'snack':
-        return Icons.cookie_rounded;
-      case 'drink':
-        return Icons.local_drink_rounded;
-      default:
-        return Icons.local_dining_rounded;
-    }
-  }
+  IconData get categoryIcon => _categoryIcon(category);
 }
 
 IconData _categoryIcon(String category) {
   switch (category.toLowerCase()) {
-    case 'main dish':
-      return Icons.restaurant_rounded;
-    case 'side dish':
-      return Icons.grass_rounded;
-    case 'appetizer':
-      return Icons.soup_kitchen_rounded;
-    case 'dessert':
-      return Icons.cake_rounded;
-    case 'breakfast':
-      return Icons.free_breakfast_rounded;
-    case 'snack':
-      return Icons.cookie_rounded;
-    case 'drink':
-      return Icons.local_drink_rounded;
-    default:
-      return Icons.local_dining_rounded;
+    case 'main dish': return Icons.restaurant_rounded;
+    case 'side dish': return Icons.grass_rounded;
+    case 'appetizer': return Icons.soup_kitchen_rounded;
+    case 'dessert': return Icons.cake_rounded;
+    case 'breakfast': return Icons.free_breakfast_rounded;
+    case 'snack': return Icons.cookie_rounded;
+    case 'drink': return Icons.local_drink_rounded;
+    default: return Icons.local_dining_rounded;
   }
 }
 
-// ── Tab ────────────────────────────────────────────────────────────────────────
 enum _TabMode { aiRecommended, allRecipes }
 
 // ── Screen ────────────────────────────────────────────────────────────────────
@@ -140,8 +104,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   late final List<LocalRecipe> _localRecipes;
   List<LocalRecipe> _filteredLocal = [];
   final TextEditingController _searchController = TextEditingController();
-  final TextEditingController _ingredientsController =
-      TextEditingController();
+  final TextEditingController _ingredientsController = TextEditingController();
   String _selectedCategory = 'All';
   _TabMode _tab = _TabMode.aiRecommended;
   bool _ingredientMode = false;
@@ -168,10 +131,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   }
 
   Future<void> _fetchApiRecipes() async {
-    setState(() {
-      _apiLoading = true;
-      _apiError = null;
-    });
+    setState(() { _apiLoading = true; _apiError = null; });
     try {
       final response = await http
           .get(Uri.parse(_apiUrl))
@@ -179,21 +139,14 @@ class _RecipesScreenState extends State<RecipesScreen> {
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         setState(() {
-          _apiRecipes =
-              data.map((j) => RecommendedRecipe.fromJson(j)).toList();
+          _apiRecipes = data.map((j) => RecommendedRecipe.fromJson(j)).toList();
           _apiLoading = false;
         });
       } else {
-        setState(() {
-          _apiError = 'Server error: ${response.statusCode}';
-          _apiLoading = false;
-        });
+        setState(() { _apiError = 'Server error: ${response.statusCode}'; _apiLoading = false; });
       }
     } catch (e) {
-      setState(() {
-        _apiError = 'Could not reach server.\n$e';
-        _apiLoading = false;
-      });
+      setState(() { _apiError = 'Could not reach server.\n$e'; _apiLoading = false; });
     }
   }
 
@@ -204,8 +157,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
         final matchesSearch = q.isEmpty ||
             r.name.toLowerCase().contains(q) ||
             r.ingredients.any((i) => i.name.toLowerCase().contains(q));
-        final matchesCat =
-            _selectedCategory == 'All' || r.category == _selectedCategory;
+        final matchesCat = _selectedCategory == 'All' || r.category == _selectedCategory;
         return matchesSearch && matchesCat;
       }).toList();
     });
@@ -217,21 +169,14 @@ class _RecipesScreenState extends State<RecipesScreen> {
   }
 
   List<LocalRecipe> _searchByIngredients(String raw) {
-    final terms = raw
-        .split(',')
-        .map((s) => s.trim().toLowerCase())
-        .where((s) => s.isNotEmpty)
-        .toList();
+    final terms = raw.split(',').map((s) => s.trim().toLowerCase()).where((s) => s.isNotEmpty).toList();
     if (terms.isEmpty) return [];
     final scored = <(LocalRecipe, int)>[];
     for (final r in _localRecipes) {
-      final recipeIngs =
-          r.ingredients.map((i) => i.name.toLowerCase()).toList();
+      final recipeIngs = r.ingredients.map((i) => i.name.toLowerCase()).toList();
       int matches = 0;
       for (final t in terms) {
-        if (recipeIngs.any((ri) => ri.contains(t) || t.contains(ri))) {
-          matches++;
-        }
+        if (recipeIngs.any((ri) => ri.contains(t) || t.contains(ri))) matches++;
       }
       if (matches > 0) scored.add((r, matches));
     }
@@ -240,33 +185,25 @@ class _RecipesScreenState extends State<RecipesScreen> {
   }
 
   List<String> get _categories {
-    final cats =
-        _localRecipes.map((r) => r.category).toSet().toList()..sort();
+    final cats = _localRecipes.map((r) => r.category).toSet().toList()..sort();
     return ['All', ...cats];
   }
 
-  void _showLocalDetail(LocalRecipe recipe,
-      {Set<String> userIngredients = const {}}) {
+  void _showLocalDetail(LocalRecipe recipe, {Set<String> userIngredients = const {}}) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (_) => _RecipeDetailSheet(
-          recipe: recipe, userIngredients: userIngredients),
+      builder: (_) => _RecipeDetailSheet(recipe: recipe, userIngredients: userIngredients),
     );
   }
 
   void _showApiDetail(RecommendedRecipe recipe) {
     final local = _localRecipes.firstWhere(
       (r) => r.name.toLowerCase() == recipe.dishName.toLowerCase(),
-      orElse: () => LocalRecipe(
-          id: 0,
-          name: recipe.dishName,
-          category: recipe.category,
-          ingredients: []),
+      orElse: () => LocalRecipe(id: 0, name: recipe.dishName, category: recipe.category, ingredients: []),
     );
-    final matchedSet =
-        recipe.matchedIngredients.map((s) => s.toLowerCase()).toSet();
+    final matchedSet = recipe.matchedIngredients.map((s) => s.toLowerCase()).toSet();
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -278,8 +215,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
                 name: recipe.dishName,
                 category: recipe.category,
                 ingredients: recipe.matchedIngredients
-                    .map((m) =>
-                        LocalIngredient(name: m, qty: 0, unit: ''))
+                    .map((m) => LocalIngredient(name: m, qty: 0, unit: ''))
                     .toList(),
               )
             : local,
@@ -295,14 +231,17 @@ class _RecipesScreenState extends State<RecipesScreen> {
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          // ── Unified header ────────────────────────────────────────────────
+          // ── Fixed header ─────────────────────────────────────────────────
           AppHeader(
             title: "Today's Menu",
             subtitle: 'R E C E N S',
             onRefresh: _fetchApiRecipes,
-            onNotification: null, // placeholder — wire up as needed
-            expandedHeight: 160,
-            bottomWidget: _TopBar(
+            onNotification: null,
+          ),
+
+          // ── Tab + search bar — first item below the header ────────────
+          SliverToBoxAdapter(
+            child: _TopBar(
               searchController: _searchController,
               tab: _tab,
               ingredientMode: _ingredientMode,
@@ -315,8 +254,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
                   }
                 });
               },
-              onIngredientModeChanged: (v) =>
-                  setState(() => _ingredientMode = v),
+              onIngredientModeChanged: (v) => setState(() => _ingredientMode = v),
             ),
           ),
 
@@ -333,12 +271,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   List<Widget> _buildApiBody() {
     if (_apiLoading) {
-      return [
-        const SliverFillRemaining(
-          child: Center(
-              child: CircularProgressIndicator(color: AppColors.medium)),
-        )
-      ];
+      return [const SliverFillRemaining(child: Center(child: CircularProgressIndicator(color: AppColors.medium)))];
     }
     if (_apiError != null) {
       return [
@@ -349,17 +282,11 @@ class _RecipesScreenState extends State<RecipesScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.wifi_off_rounded,
-                      size: 48, color: AppColors.textMuted),
+                  const Icon(Icons.wifi_off_rounded, size: 48, color: AppColors.textMuted),
                   const SizedBox(height: 14),
-                  Text(_apiError!,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          fontSize: 13, color: AppColors.textSub)),
+                  Text(_apiError!, textAlign: TextAlign.center, style: const TextStyle(fontSize: 13, color: AppColors.textSub)),
                   const SizedBox(height: 20),
-                  ElevatedButton(
-                      onPressed: _fetchApiRecipes,
-                      child: const Text('Retry')),
+                  ElevatedButton(onPressed: _fetchApiRecipes, child: const Text('Retry')),
                 ],
               ),
             ),
@@ -378,27 +305,20 @@ class _RecipesScreenState extends State<RecipesScreen> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
           child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
               color: AppColors.recipeUrgentBg,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                  color: AppColors.recipeUrgentBorder, width: 0.8),
+              border: Border.all(color: AppColors.recipeUrgentBorder, width: 0.8),
             ),
             child: const Row(
               children: [
-                Icon(Icons.auto_awesome_rounded,
-                    size: 14, color: AppColors.medium),
+                Icon(Icons.auto_awesome_rounded, size: 14, color: AppColors.medium),
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Curated by AI · Recipes ranked by freshness urgency',
-                    style: TextStyle(
-                        fontSize: 11,
-                        color: AppColors.textSub,
-                        fontStyle: FontStyle.italic,
-                        height: 1.4),
+                    style: TextStyle(fontSize: 11, color: AppColors.textSub, fontStyle: FontStyle.italic, height: 1.4),
                   ),
                 ),
               ],
@@ -408,12 +328,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
       ),
       if (_apiRecipes.isEmpty)
         const SliverFillRemaining(
-          child: Center(
-              child: Text('No recipes suggested.',
-                  style: TextStyle(
-                      color: AppColors.textMuted,
-                      fontStyle: FontStyle.italic,
-                      fontSize: 14))),
+          child: Center(child: Text('No recipes suggested.', style: TextStyle(color: AppColors.textMuted, fontStyle: FontStyle.italic, fontSize: 14))),
         )
       else
         SliverList(
@@ -424,8 +339,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
               return _RecipeSection<RecommendedRecipe>(
                 category: entry.key,
                 items: entry.value,
-                itemBuilder: (r) => _ApiRecipeRow(
-                    recipe: r, onTap: () => _showApiDetail(r)),
+                itemBuilder: (r) => _ApiRecipeRow(recipe: r, onTap: () => _showApiDetail(r)),
               );
             },
             childCount: grouped.length,
@@ -462,17 +376,12 @@ class _RecipesScreenState extends State<RecipesScreen> {
                   onTap: () => _selectCategory(cat),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
                     decoration: BoxDecoration(
-                      color: isSelected
-                          ? AppColors.primary
-                          : AppColors.surfaceAlt,
+                      color: isSelected ? AppColors.primary : AppColors.surfaceAlt,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: isSelected
-                            ? AppColors.primary
-                            : AppColors.border,
+                        color: isSelected ? AppColors.primary : AppColors.border,
                         width: 0.8,
                       ),
                     ),
@@ -480,12 +389,8 @@ class _RecipesScreenState extends State<RecipesScreen> {
                       cat,
                       style: TextStyle(
                         fontSize: 11,
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.w400,
-                        color: isSelected
-                            ? Colors.white
-                            : AppColors.textSub,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                        color: isSelected ? Colors.white : AppColors.textSub,
                         letterSpacing: 0.3,
                       ),
                     ),
@@ -498,12 +403,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
       ),
       if (_filteredLocal.isEmpty)
         const SliverFillRemaining(
-          child: Center(
-              child: Text('No recipes found.',
-                  style: TextStyle(
-                      color: AppColors.textMuted,
-                      fontStyle: FontStyle.italic,
-                      fontSize: 14))),
+          child: Center(child: Text('No recipes found.', style: TextStyle(color: AppColors.textMuted, fontStyle: FontStyle.italic, fontSize: 14))),
         )
       else
         SliverList(
@@ -514,10 +414,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
               return _RecipeSection<LocalRecipe>(
                 category: entry.key,
                 items: entry.value,
-                itemBuilder: (r) => _LocalRecipeRow(
-                    recipe: r,
-                    userIngredients: const {},
-                    onTap: () => _showLocalDetail(r)),
+                itemBuilder: (r) => _LocalRecipeRow(recipe: r, userIngredients: const {}, onTap: () => _showLocalDetail(r)),
               );
             },
             childCount: grouped.length,
@@ -541,20 +438,14 @@ class _RecipesScreenState extends State<RecipesScreen> {
               ),
               child: TextField(
                 controller: _ingredientsController,
-                style: const TextStyle(
-                    fontSize: 13, color: AppColors.textPrimary),
+                style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
                 maxLines: 2,
                 decoration: const InputDecoration(
-                  hintText:
-                      'Type ingredients separated by commas…\ne.g. chicken, garlic, lemon',
-                  hintStyle: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textMuted,
-                      fontStyle: FontStyle.italic),
+                  hintText: 'Type ingredients separated by commas…\ne.g. chicken, garlic, lemon',
+                  hintStyle: TextStyle(fontSize: 12, color: AppColors.textMuted, fontStyle: FontStyle.italic),
                   prefixIcon: Padding(
                     padding: EdgeInsets.only(top: 12),
-                    child: Icon(Icons.kitchen_rounded,
-                        size: 18, color: AppColors.textMuted),
+                    child: Icon(Icons.kitchen_rounded, size: 18, color: AppColors.textMuted),
                   ),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.fromLTRB(0, 12, 16, 12),
@@ -566,13 +457,9 @@ class _RecipesScreenState extends State<RecipesScreen> {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () => setState(() {}),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
+                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
                 icon: const Icon(Icons.search_rounded, size: 16),
-                label: const Text('Find Recipes',
-                    style: TextStyle(
-                        fontSize: 13, fontWeight: FontWeight.w600)),
+                label: const Text('Find Recipes', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
               ),
             ),
             const SizedBox(height: 20),
@@ -584,16 +471,12 @@ class _RecipesScreenState extends State<RecipesScreen> {
                     padding: const EdgeInsets.only(top: 40),
                     child: Column(
                       children: const [
-                        Icon(Icons.set_meal_rounded,
-                            size: 48, color: AppColors.textMuted),
+                        Icon(Icons.set_meal_rounded, size: 48, color: AppColors.textMuted),
                         SizedBox(height: 12),
                         Text(
                           'Enter ingredients above to\nfind matching recipes',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 13,
-                              color: AppColors.textMuted,
-                              fontStyle: FontStyle.italic),
+                          style: TextStyle(fontSize: 13, color: AppColors.textMuted, fontStyle: FontStyle.italic),
                         ),
                       ],
                     ),
@@ -601,41 +484,28 @@ class _RecipesScreenState extends State<RecipesScreen> {
                 );
               }
               final results = _searchByIngredients(query);
-              final userIngs = query
-                  .split(',')
-                  .map((s) => s.trim().toLowerCase())
-                  .toSet();
+              final userIngs = query.split(',').map((s) => s.trim().toLowerCase()).toSet();
               if (results.isEmpty) {
                 return const Center(
                   child: Padding(
                     padding: EdgeInsets.only(top: 40),
-                    child: Text(
-                      'No recipes match those ingredients.',
-                      style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textMuted,
-                          fontStyle: FontStyle.italic),
-                    ),
+                    child: Text('No recipes match those ingredients.',
+                        style: TextStyle(fontSize: 13, color: AppColors.textMuted, fontStyle: FontStyle.italic)),
                   ),
                 );
               }
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                      '${results.length} recipe${results.length == 1 ? '' : 's'} found',
-                      style: const TextStyle(
-                          fontSize: 11,
-                          color: AppColors.textMuted,
-                          letterSpacing: 0.5)),
+                  Text('${results.length} recipe${results.length == 1 ? '' : 's'} found',
+                      style: const TextStyle(fontSize: 11, color: AppColors.textMuted, letterSpacing: 0.5)),
                   const SizedBox(height: 10),
                   ...results.map((r) => Padding(
                         padding: const EdgeInsets.only(bottom: 2),
                         child: _LocalRecipeRow(
                           recipe: r,
                           userIngredients: userIngs,
-                          onTap: () =>
-                              _showLocalDetail(r, userIngredients: userIngs),
+                          onTap: () => _showLocalDetail(r, userIngredients: userIngs),
                         ),
                       )),
                 ],
@@ -648,8 +518,8 @@ class _RecipesScreenState extends State<RecipesScreen> {
   }
 }
 
-// ── Top Bar ───────────────────────────────────────────────────────────────────
-class _TopBar extends StatelessWidget implements PreferredSizeWidget {
+// ── Top Bar (search + tabs) — now a plain widget below the header ─────────────
+class _TopBar extends StatelessWidget {
   final TextEditingController searchController;
   final _TabMode tab;
   final bool ingredientMode;
@@ -665,19 +535,15 @@ class _TopBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => const Size.fromHeight(56);
-
-  @override
   Widget build(BuildContext context) {
     return Container(
       color: AppColors.surface,
-      padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
       child: Row(
         children: [
           Expanded(
             child: AnimatedOpacity(
-              opacity:
-                  (tab == _TabMode.allRecipes && !ingredientMode) ? 1.0 : 0.35,
+              opacity: (tab == _TabMode.allRecipes && !ingredientMode) ? 1.0 : 0.35,
               duration: const Duration(milliseconds: 200),
               child: IgnorePointer(
                 ignoring: !(tab == _TabMode.allRecipes && !ingredientMode),
@@ -686,21 +552,15 @@ class _TopBar extends StatelessWidget implements PreferredSizeWidget {
                   decoration: BoxDecoration(
                     color: AppColors.surfaceAlt,
                     borderRadius: BorderRadius.circular(10),
-                    border:
-                        Border.all(color: AppColors.border, width: 0.8),
+                    border: Border.all(color: AppColors.border, width: 0.8),
                   ),
                   child: TextField(
                     controller: searchController,
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.textPrimary),
+                    style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
                     decoration: const InputDecoration(
                       hintText: 'Search recipes…',
-                      hintStyle: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textMuted,
-                          fontStyle: FontStyle.italic),
-                      prefixIcon: Icon(Icons.search_rounded,
-                          size: 16, color: AppColors.textMuted),
+                      hintStyle: TextStyle(fontSize: 12, color: AppColors.textMuted, fontStyle: FontStyle.italic),
+                      prefixIcon: Icon(Icons.search_rounded, size: 16, color: AppColors.textMuted),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(vertical: 10),
                     ),
@@ -747,11 +607,7 @@ class _TabBtn extends StatelessWidget {
   final IconData icon;
   final bool active;
   final VoidCallback onTap;
-  const _TabBtn(
-      {required this.label,
-      required this.icon,
-      required this.active,
-      required this.onTap});
+  const _TabBtn({required this.label, required this.icon, required this.active, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -763,23 +619,14 @@ class _TabBtn extends StatelessWidget {
         decoration: BoxDecoration(
           color: active ? AppColors.primary : AppColors.surfaceAlt,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-              color: active ? AppColors.primary : AppColors.border,
-              width: 0.8),
+          border: Border.all(color: active ? AppColors.primary : AppColors.border, width: 0.8),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon,
-                size: 13,
-                color: active ? Colors.white : AppColors.textSub),
+            Icon(icon, size: 13, color: active ? Colors.white : AppColors.textSub),
             const SizedBox(width: 4),
-            Text(label,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: active ? Colors.white : AppColors.textSub,
-                )),
+            Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: active ? Colors.white : AppColors.textSub)),
           ],
         ),
       ),
@@ -793,11 +640,7 @@ class _RecipeSection<T> extends StatelessWidget {
   final List<T> items;
   final Widget Function(T) itemBuilder;
 
-  const _RecipeSection({
-    required this.category,
-    required this.items,
-    required this.itemBuilder,
-  });
+  const _RecipeSection({required this.category, required this.items, required this.itemBuilder});
 
   @override
   Widget build(BuildContext context) {
@@ -809,17 +652,10 @@ class _RecipeSection<T> extends StatelessWidget {
           Row(children: [
             Container(width: 20, height: 0.8, color: AppColors.divider),
             const SizedBox(width: 10),
-            Text(
-              category.toUpperCase(),
-              style: const TextStyle(
-                  fontSize: 10,
-                  letterSpacing: 2.5,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.medium),
-            ),
+            Text(category.toUpperCase(),
+                style: const TextStyle(fontSize: 10, letterSpacing: 2.5, fontWeight: FontWeight.w700, color: AppColors.medium)),
             const SizedBox(width: 10),
-            Expanded(
-                child: Container(height: 0.8, color: AppColors.divider)),
+            Expanded(child: Container(height: 0.8, color: AppColors.divider)),
           ]),
           const SizedBox(height: 10),
           Container(
@@ -833,12 +669,7 @@ class _RecipeSection<T> extends StatelessWidget {
                 final isLast = e.key == items.length - 1;
                 return Column(children: [
                   itemBuilder(e.value),
-                  if (!isLast)
-                    Container(
-                        height: 0.5,
-                        margin:
-                            const EdgeInsets.symmetric(horizontal: 14),
-                        color: AppColors.border),
+                  if (!isLast) Container(height: 0.5, margin: const EdgeInsets.symmetric(horizontal: 14), color: AppColors.border),
                 ]);
               }).toList(),
             ),
@@ -865,57 +696,34 @@ class _ApiRecipeRow extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: AppColors.surfaceAlt,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border, width: 0.8),
-              ),
-              child: Icon(recipe.categoryIcon,
-                  size: 24, color: AppColors.medium),
+              width: 52, height: 52,
+              decoration: BoxDecoration(color: AppColors.surfaceAlt, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border, width: 0.8)),
+              child: Icon(recipe.categoryIcon, size: 24, color: AppColors.medium),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(recipe.dishName,
-                      style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary)),
+                  Text(recipe.dishName, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
                   const SizedBox(height: 3),
                   Text(
-                    recipe.matchedIngredients.take(4).join(', ') +
-                        (recipe.matchedIngredients.length > 4 ? '…' : ''),
-                    style: const TextStyle(
-                        fontSize: 11,
-                        color: AppColors.textMuted,
-                        fontStyle: FontStyle.italic,
-                        height: 1.3),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                    recipe.matchedIngredients.take(4).join(', ') + (recipe.matchedIngredients.length > 4 ? '…' : ''),
+                    style: const TextStyle(fontSize: 11, color: AppColors.textMuted, fontStyle: FontStyle.italic, height: 1.3),
+                    maxLines: 2, overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 6),
                   Row(children: [
-                    _Chip(
-                        label: '${recipe.matchPct} match',
-                        color: AppColors.goodText,
-                        bg: AppColors.goodBg),
+                    _Chip(label: '${recipe.matchPct} match', color: AppColors.goodText, bg: AppColors.goodBg),
                     if (recipe.urgencyScore > 0.6) ...[
                       const SizedBox(width: 6),
-                      _Chip(
-                          label: '🔥 Use soon',
-                          color: AppColors.dangerText,
-                          bg: AppColors.dangerBg),
+                      _Chip(label: '🔥 Use soon', color: AppColors.dangerText, bg: AppColors.dangerBg),
                     ],
                   ]),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded,
-                size: 18, color: AppColors.textMuted),
+            const Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textMuted),
           ],
         ),
       ),
@@ -929,19 +737,14 @@ class _LocalRecipeRow extends StatelessWidget {
   final Set<String> userIngredients;
   final VoidCallback onTap;
 
-  const _LocalRecipeRow(
-      {required this.recipe,
-      required this.userIngredients,
-      required this.onTap});
+  const _LocalRecipeRow({required this.recipe, required this.userIngredients, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final int matched = userIngredients.isEmpty
         ? recipe.ingredients.length
         : recipe.ingredients.where((i) {
-            return userIngredients.any((u) =>
-                i.name.toLowerCase().contains(u) ||
-                u.contains(i.name.toLowerCase()));
+            return userIngredients.any((u) => i.name.toLowerCase().contains(u) || u.contains(i.name.toLowerCase()));
           }).length;
     final int total = recipe.ingredients.length;
     final int missing = total - matched;
@@ -955,64 +758,38 @@ class _LocalRecipeRow extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: AppColors.surfaceAlt,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border, width: 0.8),
-              ),
-              child: Icon(_categoryIcon(recipe.category),
-                  size: 24, color: AppColors.medium),
+              width: 52, height: 52,
+              decoration: BoxDecoration(color: AppColors.surfaceAlt, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border, width: 0.8)),
+              child: Icon(_categoryIcon(recipe.category), size: 24, color: AppColors.medium),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(recipe.name,
-                      style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary)),
+                  Text(recipe.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
                   const SizedBox(height: 3),
                   Text(
-                    recipe.ingredients.take(4).map((i) => i.name).join(', ') +
-                        (recipe.ingredients.length > 4 ? '…' : ''),
-                    style: const TextStyle(
-                        fontSize: 11,
-                        color: AppColors.textMuted,
-                        fontStyle: FontStyle.italic,
-                        height: 1.3),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                    recipe.ingredients.take(4).map((i) => i.name).join(', ') + (recipe.ingredients.length > 4 ? '…' : ''),
+                    style: const TextStyle(fontSize: 11, color: AppColors.textMuted, fontStyle: FontStyle.italic, height: 1.3),
+                    maxLines: 2, overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 6),
                   Row(children: [
-                    _Chip(
-                        label: '$total ingredient${total == 1 ? '' : 's'}',
-                        color: AppColors.textSub,
-                        bg: AppColors.surfaceAlt),
+                    _Chip(label: '$total ingredient${total == 1 ? '' : 's'}', color: AppColors.textSub, bg: AppColors.surfaceAlt),
                     if (hasUserIngs) ...[
                       const SizedBox(width: 6),
-                      _Chip(
-                          label: '$matched/$total match',
-                          color: AppColors.goodText,
-                          bg: AppColors.goodBg),
+                      _Chip(label: '$matched/$total match', color: AppColors.goodText, bg: AppColors.goodBg),
                       if (missing > 0) ...[
                         const SizedBox(width: 6),
-                        _Chip(
-                            label: '$missing missing',
-                            color: AppColors.spoiledText,
-                            bg: AppColors.spoiledBg),
+                        _Chip(label: '$missing missing', color: AppColors.spoiledText, bg: AppColors.spoiledBg),
                       ],
                     ],
                   ]),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded,
-                size: 18, color: AppColors.textMuted),
+            const Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textMuted),
           ],
         ),
       ),
@@ -1024,18 +801,14 @@ class _Chip extends StatelessWidget {
   final String label;
   final Color color;
   final Color bg;
-  const _Chip(
-      {required this.label, required this.color, required this.bg});
+  const _Chip({required this.label, required this.color, required this.bg});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration:
-          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
-      child: Text(label,
-          style: TextStyle(
-              fontSize: 9, color: color, fontWeight: FontWeight.w600)),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
+      child: Text(label, style: TextStyle(fontSize: 9, color: color, fontWeight: FontWeight.w600)),
     );
   }
 }
@@ -1046,30 +819,21 @@ class _RecipeDetailSheet extends StatelessWidget {
   final Set<String> userIngredients;
   final RecommendedRecipe? apiRecipe;
 
-  const _RecipeDetailSheet({
-    required this.recipe,
-    required this.userIngredients,
-    this.apiRecipe,
-  });
+  const _RecipeDetailSheet({required this.recipe, required this.userIngredients, this.apiRecipe});
 
   bool _isPresent(LocalIngredient ing) {
     if (userIngredients.isEmpty && apiRecipe == null) return true;
     final name = ing.name.toLowerCase();
     if (apiRecipe != null) {
-      return apiRecipe!.matchedIngredients
-          .any((m) => m.toLowerCase() == name);
+      return apiRecipe!.matchedIngredients.any((m) => m.toLowerCase() == name);
     }
-    return userIngredients
-        .any((u) => name.contains(u) || u.contains(name));
+    return userIngredients.any((u) => name.contains(u) || u.contains(name));
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool hasContext =
-        userIngredients.isNotEmpty || apiRecipe != null;
-    final presentCount = hasContext
-        ? recipe.ingredients.where(_isPresent).length
-        : recipe.ingredients.length;
+    final bool hasContext = userIngredients.isNotEmpty || apiRecipe != null;
+    final presentCount = hasContext ? recipe.ingredients.where(_isPresent).length : recipe.ingredients.length;
     final missingCount = recipe.ingredients.length - presentCount;
 
     return DraggableScrollableSheet(
@@ -1080,19 +844,15 @@ class _RecipeDetailSheet extends StatelessWidget {
         return Container(
           decoration: const BoxDecoration(
             color: AppColors.surface,
-            borderRadius:
-                BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             children: [
               const SizedBox(height: 12),
               Center(
                 child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                      color: AppColors.border,
-                      borderRadius: BorderRadius.circular(2)),
+                  width: 36, height: 4,
+                  decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)),
                 ),
               ),
               Expanded(
@@ -1103,47 +863,26 @@ class _RecipeDetailSheet extends StatelessWidget {
                     Container(
                       height: 130,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppColors.primary, AppColors.medium],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
+                        gradient: const LinearGradient(colors: [AppColors.primary, AppColors.medium], begin: Alignment.topLeft, end: Alignment.bottomRight),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(_categoryIcon(recipe.category),
-                              size: 44,
-                              color: Colors.white.withOpacity(0.9)),
+                          Icon(_categoryIcon(recipe.category), size: 44, color: Colors.white.withOpacity(0.9)),
                           const SizedBox(height: 6),
-                          Text(recipe.category,
-                              style: TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.white.withOpacity(0.7),
-                                  letterSpacing: 0.5)),
+                          Text(recipe.category, style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.7), letterSpacing: 0.5)),
                         ],
                       ),
                     ),
                     const SizedBox(height: 18),
-                    Text(recipe.name,
-                        style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
-                            height: 1.1)),
+                    Text(recipe.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.textPrimary, height: 1.1)),
                     const SizedBox(height: 8),
                     Row(children: [
-                      _Chip(
-                          label: recipe.category,
-                          color: AppColors.textSub,
-                          bg: AppColors.surfaceAlt),
+                      _Chip(label: recipe.category, color: AppColors.textSub, bg: AppColors.surfaceAlt),
                       if (apiRecipe != null) ...[
                         const SizedBox(width: 8),
-                        _Chip(
-                            label: '${apiRecipe!.matchPct} match',
-                            color: AppColors.goodText,
-                            bg: AppColors.goodBg),
+                        _Chip(label: '${apiRecipe!.matchPct} match', color: AppColors.goodText, bg: AppColors.goodBg),
                       ],
                     ]),
                     const SizedBox(height: 18),
@@ -1153,138 +892,73 @@ class _RecipeDetailSheet extends StatelessWidget {
                       Row(children: [
                         _LegendDot(color: AppColors.recipePresentText),
                         const SizedBox(width: 6),
-                        const Text('In fridge',
-                            style: TextStyle(
-                                fontSize: 11, color: AppColors.textSub)),
+                        const Text('In fridge', style: TextStyle(fontSize: 11, color: AppColors.textSub)),
                         const SizedBox(width: 16),
                         _LegendDot(color: AppColors.recipeMissingText),
                         const SizedBox(width: 6),
-                        const Text('Missing',
-                            style: TextStyle(
-                                fontSize: 11, color: AppColors.textSub)),
+                        const Text('Missing', style: TextStyle(fontSize: 11, color: AppColors.textSub)),
                       ]),
                       const SizedBox(height: 12),
                     ],
-                    const Text('INGREDIENTS',
-                        style: TextStyle(
-                            fontSize: 10,
-                            letterSpacing: 2.5,
-                            color: AppColors.medium,
-                            fontWeight: FontWeight.w700)),
+                    const Text('INGREDIENTS', style: TextStyle(fontSize: 10, letterSpacing: 2.5, color: AppColors.medium, fontWeight: FontWeight.w700)),
                     const SizedBox(height: 10),
                     Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                            color: AppColors.border, width: 0.8),
-                      ),
+                      decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.border, width: 0.8)),
                       child: Column(
-                        children: recipe.ingredients
-                            .asMap()
-                            .entries
-                            .map((e) {
+                        children: recipe.ingredients.asMap().entries.map((e) {
                           final i = e.key;
                           final ing = e.value;
                           final present = _isPresent(ing);
-                          final isLast =
-                              i == recipe.ingredients.length - 1;
+                          final isLast = i == recipe.ingredients.length - 1;
                           return Column(children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               decoration: BoxDecoration(
                                 color: hasContext
-                                    ? (present
-                                        ? AppColors.recipePresentBg
-                                            .withOpacity(0.5)
-                                        : AppColors.recipeMissingBg
-                                            .withOpacity(0.4))
+                                    ? (present ? AppColors.recipePresentBg.withOpacity(0.5) : AppColors.recipeMissingBg.withOpacity(0.4))
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.only(
-                                  topLeft: i == 0
-                                      ? const Radius.circular(14)
-                                      : Radius.zero,
-                                  topRight: i == 0
-                                      ? const Radius.circular(14)
-                                      : Radius.zero,
-                                  bottomLeft: isLast
-                                      ? const Radius.circular(14)
-                                      : Radius.zero,
-                                  bottomRight: isLast
-                                      ? const Radius.circular(14)
-                                      : Radius.zero,
+                                  topLeft: i == 0 ? const Radius.circular(14) : Radius.zero,
+                                  topRight: i == 0 ? const Radius.circular(14) : Radius.zero,
+                                  bottomLeft: isLast ? const Radius.circular(14) : Radius.zero,
+                                  bottomRight: isLast ? const Radius.circular(14) : Radius.zero,
                                 ),
                               ),
                               child: Row(children: [
                                 if (hasContext) ...[
-                                  Icon(
-                                    present
-                                        ? Icons.check_circle_rounded
-                                        : Icons.cancel_rounded,
-                                    size: 16,
-                                    color: present
-                                        ? AppColors.recipePresentText
-                                        : AppColors.recipeMissingText,
-                                  ),
+                                  Icon(present ? Icons.check_circle_rounded : Icons.cancel_rounded, size: 16,
+                                      color: present ? AppColors.recipePresentText : AppColors.recipeMissingText),
                                   const SizedBox(width: 10),
                                 ],
                                 Expanded(
-                                  child: Text(ing.name,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: hasContext
-                                            ? (present
-                                                ? AppColors
-                                                    .recipePresentText
-                                                : AppColors
-                                                    .recipeMissingText)
-                                            : AppColors.textPrimary,
-                                      )),
+                                  child: Text(ing.name, style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.w500,
+                                    color: hasContext ? (present ? AppColors.recipePresentText : AppColors.recipeMissingText) : AppColors.textPrimary,
+                                  )),
                                 ),
                                 Text(
                                   '${ing.qty % 1 == 0 ? ing.qty.toInt() : ing.qty} ${ing.unit}',
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: hasContext
-                                        ? (present
-                                            ? AppColors.recipePresentText
-                                                .withOpacity(0.7)
-                                            : AppColors.recipeMissingText
-                                                .withOpacity(0.6))
-                                        : AppColors.textMuted,
+                                    color: hasContext ? (present ? AppColors.recipePresentText.withOpacity(0.7) : AppColors.recipeMissingText.withOpacity(0.6)) : AppColors.textMuted,
                                     fontStyle: FontStyle.italic,
                                   ),
                                 ),
                                 if (hasContext && !present) ...[
                                   const SizedBox(width: 8),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 6, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                     decoration: BoxDecoration(
                                       color: AppColors.spoiledBg,
-                                      borderRadius:
-                                          BorderRadius.circular(6),
-                                      border: Border.all(
-                                          color: AppColors.spoiledColor
-                                              .withOpacity(0.3),
-                                          width: 0.6),
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(color: AppColors.spoiledColor.withOpacity(0.3), width: 0.6),
                                     ),
-                                    child: const Text('needed',
-                                        style: TextStyle(
-                                            fontSize: 9,
-                                            color: AppColors.spoiledText,
-                                            fontWeight:
-                                                FontWeight.w600)),
+                                    child: const Text('needed', style: TextStyle(fontSize: 9, color: AppColors.spoiledText, fontWeight: FontWeight.w600)),
                                   ),
                                 ],
                               ]),
                             ),
-                            if (!isLast)
-                              Container(
-                                  height: 0.5,
-                                  color: AppColors.border),
+                            if (!isLast) Container(height: 0.5, color: AppColors.border),
                           ]);
                         }).toList(),
                       ),
@@ -1292,18 +966,10 @@ class _RecipeDetailSheet extends StatelessWidget {
                     if (hasContext) ...[
                       const SizedBox(height: 12),
                       Row(children: [
-                        _SummaryChip(
-                            count: presentCount,
-                            label: 'available',
-                            textColor: AppColors.recipePresentText,
-                            bgColor: AppColors.recipePresentBg),
+                        _SummaryChip(count: presentCount, label: 'available', textColor: AppColors.recipePresentText, bgColor: AppColors.recipePresentBg),
                         if (missingCount > 0) ...[
                           const SizedBox(width: 10),
-                          _SummaryChip(
-                              count: missingCount,
-                              label: 'still needed',
-                              textColor: AppColors.recipeMissingText,
-                              bgColor: AppColors.recipeMissingBg),
+                          _SummaryChip(count: missingCount, label: 'still needed', textColor: AppColors.recipeMissingText, bgColor: AppColors.recipeMissingBg),
                         ],
                       ]),
                     ],
@@ -1311,32 +977,19 @@ class _RecipeDetailSheet extends StatelessWidget {
                       const SizedBox(height: 18),
                       Container(height: 0.8, color: AppColors.border),
                       const SizedBox(height: 18),
-                      const Text('AI MATCH DETAILS',
-                          style: TextStyle(
-                              fontSize: 10,
-                              letterSpacing: 2.5,
-                              color: AppColors.medium,
-                              fontWeight: FontWeight.w700)),
+                      const Text('AI MATCH DETAILS', style: TextStyle(fontSize: 10, letterSpacing: 2.5, color: AppColors.medium, fontWeight: FontWeight.w700)),
                       const SizedBox(height: 12),
-                      _DetailRow(
-                          'Ingredient match', apiRecipe!.matchPct),
+                      _DetailRow('Ingredient match', apiRecipe!.matchPct),
                       const SizedBox(height: 8),
-                      _DetailRow('Cosine score',
-                          apiRecipe!.cosineScore.toStringAsFixed(4)),
+                      _DetailRow('Cosine score', apiRecipe!.cosineScore.toStringAsFixed(4)),
                       const SizedBox(height: 8),
-                      _DetailRow('Urgency score',
-                          apiRecipe!.urgencyScore.toStringAsFixed(4)),
+                      _DetailRow('Urgency score', apiRecipe!.urgencyScore.toStringAsFixed(4)),
                       const SizedBox(height: 8),
-                      _DetailRow('Final score',
-                          apiRecipe!.finalScore.toStringAsFixed(4)),
+                      _DetailRow('Final score', apiRecipe!.finalScore.toStringAsFixed(4)),
                       const SizedBox(height: 14),
                       FreshnessBar(
-                        fraction: double.tryParse(apiRecipe!.matchPct
-                                    .replaceAll('%', '')) !=
-                                null
-                            ? double.parse(apiRecipe!.matchPct
-                                    .replaceAll('%', '')) /
-                                100
+                        fraction: double.tryParse(apiRecipe!.matchPct.replaceAll('%', '')) != null
+                            ? double.parse(apiRecipe!.matchPct.replaceAll('%', '')) / 100
                             : 0.0,
                         color: AppColors.medium,
                       ),
@@ -1347,15 +1000,10 @@ class _RecipeDetailSheet extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () => Navigator.pop(context),
                         style: ElevatedButton.styleFrom(
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        child: const Text('Close',
-                            style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500)),
+                        child: const Text('Close', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
                       ),
                     ),
                   ],
@@ -1372,36 +1020,22 @@ class _RecipeDetailSheet extends StatelessWidget {
 class _LegendDot extends StatelessWidget {
   final Color color;
   const _LegendDot({required this.color});
-
   @override
-  Widget build(BuildContext context) => Container(
-      width: 10,
-      height: 10,
-      decoration:
-          BoxDecoration(color: color, shape: BoxShape.circle));
+  Widget build(BuildContext context) => Container(width: 10, height: 10, decoration: BoxDecoration(color: color, shape: BoxShape.circle));
 }
 
 class _SummaryChip extends StatelessWidget {
   final int count;
   final String label;
   final Color textColor, bgColor;
-  const _SummaryChip(
-      {required this.count,
-      required this.label,
-      required this.textColor,
-      required this.bgColor});
+  const _SummaryChip({required this.count, required this.label, required this.textColor, required this.bgColor});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-          color: bgColor, borderRadius: BorderRadius.circular(20)),
-      child: Text('$count $label',
-          style: TextStyle(
-              fontSize: 11,
-              color: textColor,
-              fontWeight: FontWeight.w600)),
+      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(20)),
+      child: Text('$count $label', style: TextStyle(fontSize: 11, color: textColor, fontWeight: FontWeight.w600)),
     );
   }
 }
@@ -1415,14 +1049,8 @@ class _DetailRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label,
-            style: const TextStyle(
-                fontSize: 12, color: AppColors.textMuted)),
-        Text(value,
-            style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary)),
+        Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+        Text(value, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
       ],
     );
   }

@@ -60,7 +60,6 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
     _loadItems();
   }
 
-  // ── Fetch ──────────────────────────────────────────────────────────────────
   Future<void> _loadItems() async {
     setState(() {
       _loading = true;
@@ -90,7 +89,6 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
     }
   }
 
-  // ── Save expiry to backend ─────────────────────────────────────────────────
   Future<void> _saveExpiry(ExpiryItem item) async {
     try {
       await http.post(
@@ -101,7 +99,6 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
     } catch (_) {}
   }
 
-  // ── Date picker dialog ─────────────────────────────────────────────────────
   Future<void> _pickDate(ExpiryItem item) async {
     final now = DateTime.now();
     final picked = await showDatePicker(
@@ -121,7 +118,6 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
       ),
     );
     if (picked == null) return;
-
     final days = picked.difference(now).inDays.toDouble().clamp(1.0, 365.0);
     setState(() {
       item.initialLife = days;
@@ -130,13 +126,11 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
     await _saveExpiry(item);
   }
 
-  // ── Use default ────────────────────────────────────────────────────────────
   Future<void> _useDefault(ExpiryItem item) async {
     setState(() => item.confirmed = true);
     await _saveExpiry(item);
   }
 
-  // ── Status colour ──────────────────────────────────────────────────────────
   Color _statusColor(String status) {
     switch (status.toLowerCase()) {
       case 'spoiled':
@@ -163,29 +157,28 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
     }
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // BUILD
-  // ─────────────────────────────────────────────────────────────────────────
-
-  int get _confirmedCount => _items.where((i) => i.confirmed).length;
-
   @override
   Widget build(BuildContext context) {
+    final confirmed = _items.where((i) => i.confirmed).length;
+    final total = _items.length;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          // ── Unified header ────────────────────────────────────────────────
+          // ── Fixed header ─────────────────────────────────────────────────
           AppHeader(
             title: 'Expiry Setup',
             subtitle: 'Confirm or set shelf life for each item',
             onRefresh: _loadItems,
-            onNotification: null, // placeholder — wire up as needed
-            expandedHeight: 130,
-            bottomWidget: _items.isEmpty
-                ? null
-                : _SummaryBar(items: _items),
+            onNotification: null,
           ),
+
+          // ── Summary progress bar — sits just below the header ────────────
+          if (_items.isNotEmpty)
+            SliverToBoxAdapter(
+              child: _SummaryBar(confirmed: confirmed, total: total),
+            ),
 
           // ── Body ─────────────────────────────────────────────────────────
           if (_loading)
@@ -251,25 +244,20 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SUMMARY BAR  (pinned below the header)
+// SUMMARY BAR  (now a plain widget below the header)
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _SummaryBar extends StatelessWidget implements PreferredSizeWidget {
-  final List<ExpiryItem> items;
-  const _SummaryBar({required this.items});
-
-  @override
-  Size get preferredSize => const Size.fromHeight(46);
+class _SummaryBar extends StatelessWidget {
+  final int confirmed;
+  final int total;
+  const _SummaryBar({required this.confirmed, required this.total});
 
   @override
   Widget build(BuildContext context) {
-    final total = items.length;
-    final confirmed = items.where((i) => i.confirmed).length;
     final fraction = total > 0 ? confirmed / total : 0.0;
-
     return Container(
       color: AppColors.primary,
-      padding: const EdgeInsets.fromLTRB(20, 6, 20, 10),
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 12),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -289,7 +277,7 @@ class _SummaryBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ],
           ),
-          const SizedBox(height: 5),
+          const SizedBox(height: 6),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
