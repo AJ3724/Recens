@@ -5,6 +5,7 @@ import 'screens/expiry_screen.dart';
 import 'screens/fridge_screen.dart';
 import 'screens/alerts_screen.dart';
 import 'screens/recipes_screen.dart';
+import 'screens/settings_screen.dart';
 import 'services/notification_service.dart';
 
 void main() async {
@@ -42,10 +43,11 @@ class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = const [
-    ExpiryScreen(),   // ← was HomeScreen()
+    ExpiryScreen(),
     FridgeScreen(),
     AlertsScreen(),
     RecipesScreen(),
+    SettingsScreen(),
   ];
 
   @override
@@ -64,9 +66,9 @@ class _MainShellState extends State<MainShell> {
           onTap: (index) => setState(() => _currentIndex = index),
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home_rounded),
-              label: 'Home',
+              icon: Icon(Icons.event_note_outlined),
+              activeIcon: Icon(Icons.event_note_rounded),
+              label: 'Expiry',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.kitchen_outlined),
@@ -82,6 +84,11 @@ class _MainShellState extends State<MainShell> {
               icon: Icon(Icons.restaurant_menu_outlined),
               activeIcon: Icon(Icons.restaurant_menu_rounded),
               label: 'Recipes',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings_outlined),
+              activeIcon: Icon(Icons.settings_rounded),
+              label: 'Settings',
             ),
           ],
         ),

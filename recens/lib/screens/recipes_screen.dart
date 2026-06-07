@@ -317,7 +317,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Curated by AI · Recipes ranked by freshness urgency',
+                    'Created by AI · Recipes ranked by freshness urgency',
                     style: TextStyle(fontSize: 11, color: AppColors.textSub, fontStyle: FontStyle.italic, height: 1.4),
                   ),
                 ),

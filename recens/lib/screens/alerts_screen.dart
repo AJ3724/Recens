@@ -50,80 +50,86 @@ class AlertItem {
 
   Color get borderColor {
     switch (type) {
-      case AlertType.good:
-        return AppColors.goodColor;
-      case AlertType.acceptable:
-        return AppColors.acceptColor;
-      case AlertType.danger:
-        return AppColors.dangerColor;
-      case AlertType.spoiled:
-        return AppColors.spoiledColor;
+      case AlertType.good:       return AppColors.goodColor;
+      case AlertType.acceptable: return AppColors.acceptColor;
+      case AlertType.danger:     return AppColors.dangerColor;
+      case AlertType.spoiled:    return AppColors.spoiledColor;
     }
   }
 
   Color get bgColor {
     switch (type) {
-      case AlertType.good:
-        return AppColors.goodBg;
-      case AlertType.acceptable:
-        return AppColors.acceptBg;
-      case AlertType.danger:
-        return AppColors.dangerBg;
-      case AlertType.spoiled:
-        return AppColors.spoiledBg;
+      case AlertType.good:       return AppColors.goodBg;
+      case AlertType.acceptable: return AppColors.acceptBg;
+      case AlertType.danger:     return AppColors.dangerBg;
+      case AlertType.spoiled:    return AppColors.spoiledBg;
     }
   }
 
   Color get iconBg {
     switch (type) {
-      case AlertType.good:
-        return const Color(0xFFBFEDD4);
-      case AlertType.acceptable:
-        return const Color(0xFFBFDDE5);
-      case AlertType.danger:
-        return const Color(0xFFFFE5A0);
-      case AlertType.spoiled:
-        return const Color(0xFFC8D2E8);
+      case AlertType.good:       return const Color(0xFFBFEDD4);
+      case AlertType.acceptable: return const Color(0xFFBFDDE5);
+      case AlertType.danger:     return const Color(0xFFFFE5A0);
+      case AlertType.spoiled:    return const Color(0xFFC8D2E8);
     }
   }
 
   Color get iconColor {
     switch (type) {
-      case AlertType.good:
-        return AppColors.goodColor;
-      case AlertType.acceptable:
-        return AppColors.acceptColor;
-      case AlertType.danger:
-        return AppColors.dangerColor;
-      case AlertType.spoiled:
-        return AppColors.spoiledColor;
+      case AlertType.good:       return AppColors.goodColor;
+      case AlertType.acceptable: return AppColors.acceptColor;
+      case AlertType.danger:     return AppColors.dangerColor;
+      case AlertType.spoiled:    return AppColors.spoiledColor;
     }
   }
 
   Color get titleColor {
     switch (type) {
-      case AlertType.good:
-        return AppColors.goodText;
-      case AlertType.acceptable:
-        return AppColors.acceptText;
-      case AlertType.danger:
-        return AppColors.dangerText;
-      case AlertType.spoiled:
-        return AppColors.spoiledText;
+      case AlertType.good:       return AppColors.goodText;
+      case AlertType.acceptable: return AppColors.acceptText;
+      case AlertType.danger:     return AppColors.dangerText;
+      case AlertType.spoiled:    return AppColors.spoiledText;
     }
   }
 
   IconData get icon {
     switch (type) {
-      case AlertType.good:
-        return Icons.check_circle_rounded;
-      case AlertType.acceptable:
-        return Icons.info_outline_rounded;
-      case AlertType.danger:
-        return Icons.access_time_rounded;
-      case AlertType.spoiled:
-        return Icons.warning_rounded;
+      case AlertType.good:       return Icons.check_circle_rounded;
+      case AlertType.acceptable: return Icons.info_outline_rounded;
+      case AlertType.danger:     return Icons.access_time_rounded;
+      case AlertType.spoiled:    return Icons.warning_rounded;
     }
+  }
+}
+
+// ── Incompatible Item Model ───────────────────────────────────────────────────
+class IncompatibleItem {
+  final String id;
+  final String itemA;
+  final String itemB;
+  final String title;
+  final String description;
+  final String detectedAt;
+
+  const IncompatibleItem({
+    required this.id,
+    required this.itemA,
+    required this.itemB,
+    required this.title,
+    required this.description,
+    required this.detectedAt,
+  });
+
+  factory IncompatibleItem.fromJson(Map<String, dynamic> json) {
+    return IncompatibleItem(
+      id:          json['id']?.toString()          ?? '',
+      itemA:       json['item_a']?.toString()       ?? '',
+      itemB:       json['item_b']?.toString()       ?? '',
+      title:       json['title']?.toString()        ?? '',
+      description: json['description']?.toString()  ?? '',
+      detectedAt:  json['detected_at']?.toString()  ?? '',
+    );
   }
 }
 
@@ -143,10 +149,10 @@ class MissingItem {
 
   factory MissingItem.fromJson(Map<String, dynamic> json) {
     return MissingItem(
-      id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
-      itemName: json['item_name'] ?? '',
+      id:         int.tryParse(json['id']?.toString()          ?? '0') ?? 0,
+      itemName:   json['item_name']?.toString()                         ?? '',
       minutesOut: int.tryParse(json['minutes_out']?.toString() ?? '0') ?? 0,
-      message: json['message'] ?? '',
+      message:    json['message']?.toString()                           ?? '',
     );
   }
 
@@ -165,37 +171,27 @@ enum _Filter { all, good, acceptable, danger, spoiled }
 extension _FilterLabel on _Filter {
   String get label {
     switch (this) {
-      case _Filter.all:
-        return 'All';
-      case _Filter.good:
-        return 'Good';
-      case _Filter.acceptable:
-        return 'Acceptable';
-      case _Filter.danger:
-        return 'Danger';
-      case _Filter.spoiled:
-        return 'Spoiled';
+      case _Filter.all:        return 'All';
+      case _Filter.good:       return 'Good';
+      case _Filter.acceptable: return 'Acceptable';
+      case _Filter.danger:     return 'Danger';
+      case _Filter.spoiled:    return 'Spoiled';
     }
   }
 
   Color get activeBg {
     switch (this) {
-      case _Filter.all:
-        return AppColors.primary;
-      case _Filter.good:
-        return AppColors.goodColor;
-      case _Filter.acceptable:
-        return AppColors.acceptColor;
-      case _Filter.danger:
-        return AppColors.dangerColor;
-      case _Filter.spoiled:
-        return AppColors.spoiledColor;
+      case _Filter.all:        return AppColors.primary;
+      case _Filter.good:       return AppColors.goodColor;
+      case _Filter.acceptable: return AppColors.acceptColor;
+      case _Filter.danger:     return AppColors.dangerColor;
+      case _Filter.spoiled:    return AppColors.spoiledColor;
     }
   }
 }
 
 // ── Alert View Mode ───────────────────────────────────────────────────────────
-enum _AlertMode { status, missing }
+enum _AlertMode { status, missing, incompatible }
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 class AlertsScreen extends StatefulWidget {
@@ -208,48 +204,46 @@ class AlertsScreen extends StatefulWidget {
 class _AlertsScreenState extends State<AlertsScreen>
     with SingleTickerProviderStateMixin {
   // Status alerts state
-  List<AlertItem> _alerts = [];
-  bool _loadingAlerts = true;
-  String? _alertsError;
-  _Filter _activeFilter = _Filter.all;
+  List<AlertItem> _alerts        = [];
+  bool            _loadingAlerts = true;
+  String?         _alertsError;
+  _Filter         _activeFilter  = _Filter.all;
 
   // Missing items state
-  List<MissingItem> _missingItems = [];
-  bool _loadingMissing = true;
-  String? _missingError;
-  final Set<int> _respondingIds = {};
+  List<MissingItem> _missingItems   = [];
+  bool              _loadingMissing = true;
+  String?           _missingError;
+  final Set<int>    _respondingIds  = {};
+
+  // Incompatible items state
+  List<IncompatibleItem> _incompatibleItems   = [];
+  bool                   _loadingIncompatible = true;
+  String?                _incompatibleError;
 
   // View mode
   _AlertMode _mode = _AlertMode.status;
 
-  static const int _fridgeTemp = 4;
+  static const int _fridgeTemp     = 4;
   static const int _fridgeHumidity = 72;
 
-  String get _alertsUrl => kIsWeb
-      ? 'http://localhost:8080/get_alerts'
-      : 'http://192.168.1.8:8080/get_alerts';
-
-  String get _missingUrl => kIsWeb
-      ? 'http://localhost:8080/get_missing_items'
-      : 'http://192.168.1.8:8080/get_missing_items';
-
-  String get _responseUrl => kIsWeb
-      ? 'http://localhost:8080/set_response'
-      : 'http://192.168.1.8:8080/set_response';
+  // ── URL helpers ───────────────────────────────────────────────────────────
+  String get _base => kIsWeb ? 'http://localhost:8080' : 'http://192.168.1.8:8080';
+  String get _alertsUrl        => '$_base/get_alerts';
+  String get _missingUrl       => '$_base/get_missing_items';
+  String get _responseUrl      => '$_base/set_response';
+  String get _incompatibleUrl  => '$_base/get_incompatible';
 
   @override
   void initState() {
     super.initState();
     _fetchAlerts();
     _fetchMissingItems();
+    _fetchIncompatibleItems();
   }
 
   // ── Fetch status alerts ───────────────────────────────────────────────────
   Future<void> _fetchAlerts() async {
-    setState(() {
-      _loadingAlerts = true;
-      _alertsError = null;
-    });
+    setState(() { _loadingAlerts = true; _alertsError = null; });
     try {
       final response = await http
           .get(Uri.parse(_alertsUrl))
@@ -257,52 +251,38 @@ class _AlertsScreenState extends State<AlertsScreen>
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         setState(() {
-          _alerts = data.map((j) => AlertItem.fromJson(j)).toList();
+          _alerts       = data.map((j) => AlertItem.fromJson(j)).toList();
           _loadingAlerts = false;
         });
 
-        final spoiledItems =
-            _alerts.where((a) => a.type == AlertType.spoiled).toList();
-        final dangerItems =
-            _alerts.where((a) => a.type == AlertType.danger).toList();
+        final spoiledItems = _alerts.where((a) => a.type == AlertType.spoiled).toList();
+        final dangerItems  = _alerts.where((a) => a.type == AlertType.danger).toList();
 
         if (spoiledItems.isNotEmpty) {
           await NotificationService.showNotification(
-            id: 1,
+            id:    1,
             title: '🚨 Spoiled Items in Your Fridge',
-            body:
-                '${spoiledItems.length} item${spoiledItems.length == 1 ? '' : 's'} spoiled. Remove them immediately!',
+            body:  '${spoiledItems.length} item${spoiledItems.length == 1 ? '' : 's'} spoiled. Remove them immediately!',
           );
         }
-
         if (dangerItems.isNotEmpty) {
           await NotificationService.showNotification(
-            id: 2,
+            id:    2,
             title: '⚠️ Items Expiring Soon',
-            body:
-                '${dangerItems.length} item${dangerItems.length == 1 ? '' : 's'} will expire soon. Use them now!',
+            body:  '${dangerItems.length} item${dangerItems.length == 1 ? '' : 's'} will expire soon. Use them now!',
           );
         }
       } else {
-        setState(() {
-          _alertsError = 'Server error: ${response.statusCode}';
-          _loadingAlerts = false;
-        });
+        setState(() { _alertsError = 'Server error: ${response.statusCode}'; _loadingAlerts = false; });
       }
     } catch (e) {
-      setState(() {
-        _alertsError = 'Could not reach server.\n$e';
-        _loadingAlerts = false;
-      });
+      setState(() { _alertsError = 'Could not reach server.\n$e'; _loadingAlerts = false; });
     }
   }
 
   // ── Fetch missing items ───────────────────────────────────────────────────
   Future<void> _fetchMissingItems() async {
-    setState(() {
-      _loadingMissing = true;
-      _missingError = null;
-    });
+    setState(() { _loadingMissing = true; _missingError = null; });
     try {
       final response = await http
           .get(Uri.parse(_missingUrl))
@@ -310,21 +290,43 @@ class _AlertsScreenState extends State<AlertsScreen>
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         setState(() {
-          _missingItems =
-              data.map((j) => MissingItem.fromJson(j)).toList();
+          _missingItems   = data.map((j) => MissingItem.fromJson(j)).toList();
           _loadingMissing = false;
         });
       } else {
-        setState(() {
-          _missingError = 'Server error: ${response.statusCode}';
-          _loadingMissing = false;
-        });
+        setState(() { _missingError = 'Server error: ${response.statusCode}'; _loadingMissing = false; });
       }
     } catch (e) {
-      setState(() {
-        _missingError = 'Could not reach server.\n$e';
-        _loadingMissing = false;
-      });
+      setState(() { _missingError = 'Could not reach server.\n$e'; _loadingMissing = false; });
+    }
+  }
+
+  // ── Fetch incompatible items ──────────────────────────────────────────────
+  Future<void> _fetchIncompatibleItems() async {
+    setState(() { _loadingIncompatible = true; _incompatibleError = null; });
+    try {
+      final response = await http
+          .get(Uri.parse(_incompatibleUrl))
+          .timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          _incompatibleItems   = data.map((j) => IncompatibleItem.fromJson(j)).toList();
+          _loadingIncompatible = false;
+        });
+
+        if (_incompatibleItems.isNotEmpty) {
+          await NotificationService.showNotification(
+            id:    3,
+            title: '⚡ Incompatible Items Detected',
+            body:  '${_incompatibleItems.length} pair${_incompatibleItems.length == 1 ? '' : 's'} of items should not be stored together.',
+          );
+        }
+      } else {
+        setState(() { _incompatibleError = 'Server error: ${response.statusCode}'; _loadingIncompatible = false; });
+      }
+    } catch (e) {
+      setState(() { _incompatibleError = 'Could not reach server.\n$e'; _loadingIncompatible = false; });
     }
   }
 
@@ -357,8 +359,7 @@ class _AlertsScreenState extends State<AlertsScreen>
 
   void _showSnack(String msg) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
@@ -366,56 +367,62 @@ class _AlertsScreenState extends State<AlertsScreen>
     if (_activeFilter == _Filter.all) return _alerts;
     return _alerts.where((a) {
       switch (_activeFilter) {
-        case _Filter.good:
-          return a.type == AlertType.good;
-        case _Filter.acceptable:
-          return a.type == AlertType.acceptable;
-        case _Filter.danger:
-          return a.type == AlertType.danger;
-        case _Filter.spoiled:
-          return a.type == AlertType.spoiled;
-        case _Filter.all:
-          return true;
+        case _Filter.good:       return a.type == AlertType.good;
+        case _Filter.acceptable: return a.type == AlertType.acceptable;
+        case _Filter.danger:     return a.type == AlertType.danger;
+        case _Filter.spoiled:    return a.type == AlertType.spoiled;
+        case _Filter.all:        return true;
       }
     }).toList();
   }
 
-  int _countOf(AlertType type) =>
-      _alerts.where((a) => a.type == type).length;
+  int _countOf(AlertType type) => _alerts.where((a) => a.type == type).length;
 
   void _onRefresh() {
     _fetchAlerts();
     _fetchMissingItems();
+    _fetchIncompatibleItems();
   }
 
   void _onNotification() {
     NotificationService.showNotification(
-      id: 0,
+      id:    0,
       title: '🧊 Fridge Check Reminder',
-      body: 'Time to check your fridge! Some items may need attention.',
+      body:  'Time to check your fridge! Some items may need attention.',
     );
+  }
+
+  String? _buildSubtitle() {
+    switch (_mode) {
+      case _AlertMode.status:
+        return _alerts.isEmpty ? null : '${_alerts.length} active alert${_alerts.length == 1 ? '' : 's'}';
+      case _AlertMode.missing:
+        return _missingItems.isEmpty ? null : '${_missingItems.length} item${_missingItems.length == 1 ? '' : 's'} need attention';
+      case _AlertMode.incompatible:
+        return _incompatibleItems.isEmpty ? null : '${_incompatibleItems.length} incompatible pair${_incompatibleItems.length == 1 ? '' : 's'}';
+    }
   }
 
   // ── Build ─────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    final isLoadingBoth = _loadingAlerts && _loadingMissing;
+    final isLoadingAll = _loadingAlerts && _loadingMissing && _loadingIncompatible;
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: isLoadingBoth
+      body: isLoadingAll
           ? const Center(child: CircularProgressIndicator())
           : CustomScrollView(
               slivers: [
                 // ── Header ──────────────────────────────────────────────────
                 AppHeader(
-                  title: 'Alerts',
-                  subtitle: _buildSubtitle(),
-                  onRefresh: _onRefresh,
-                  onNotification: _onNotification,
+                  title:           'Alerts',
+                  subtitle:        _buildSubtitle(),
+                  onRefresh:       _onRefresh,
+                  onNotification:  _onNotification,
                 ),
 
-                // ── Body ────────────────────────────────────────────────────
+                // ── Static top section ───────────────────────────────────────
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -423,16 +430,15 @@ class _AlertsScreenState extends State<AlertsScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _FridgeStatusCard(
-                          temp: _fridgeTemp,
+                          temp:     _fridgeTemp,
                           humidity: _fridgeHumidity,
                         ),
                         const SizedBox(height: 16),
-
-                        // ── Mode toggle buttons ──────────────────────────
                         _ModeToggle(
-                          mode: _mode,
-                          statusCount: _alerts.length,
-                          missingCount: _missingItems.length,
+                          mode:               _mode,
+                          statusCount:        _alerts.length,
+                          missingCount:       _missingItems.length,
+                          incompatibleCount:  _incompatibleItems.length,
                           onSelect: (m) => setState(() => _mode = m),
                         ),
                         const SizedBox(height: 16),
@@ -441,19 +447,18 @@ class _AlertsScreenState extends State<AlertsScreen>
                   ),
                 ),
 
-                // ── Status Alerts Section ────────────────────────────────
+                // ── Status Alerts Section ────────────────────────────────────
                 if (_mode == _AlertMode.status) ...[
                   if (_loadingAlerts)
                     const SliverToBoxAdapter(
                       child: Padding(
                         padding: EdgeInsets.only(top: 40),
-                        child: Center(child: CircularProgressIndicator()),
+                        child:   Center(child: CircularProgressIndicator()),
                       ),
                     )
                   else if (_alertsError != null)
                     SliverToBoxAdapter(
-                      child: _ErrorView(
-                          message: _alertsError!, onRetry: _fetchAlerts),
+                      child: _ErrorView(message: _alertsError!, onRetry: _fetchAlerts),
                     )
                   else ...[
                     SliverToBoxAdapter(
@@ -465,61 +470,54 @@ class _AlertsScreenState extends State<AlertsScreen>
                             Row(
                               children: [
                                 _CountCard(
-                                  count: _countOf(AlertType.good),
-                                  label: 'Good',
-                                  bg: AppColors.goodBg,
-                                  numColor: AppColors.goodText,
-                                  lblColor: const Color(0xFF1A5E35),
-                                  onTap: () => setState(
-                                      () => _activeFilter = _Filter.good),
-                                  isActive: _activeFilter == _Filter.good,
+                                  count:       _countOf(AlertType.good),
+                                  label:       'Good',
+                                  bg:          AppColors.goodBg,
+                                  numColor:    AppColors.goodText,
+                                  lblColor:    const Color(0xFF1A5E35),
+                                  onTap:       () => setState(() => _activeFilter = _Filter.good),
+                                  isActive:    _activeFilter == _Filter.good,
                                   activeColor: AppColors.goodColor,
                                 ),
                                 const SizedBox(width: 8),
                                 _CountCard(
-                                  count: _countOf(AlertType.acceptable),
-                                  label: 'Accept.',
-                                  bg: AppColors.acceptBg,
-                                  numColor: AppColors.acceptText,
-                                  lblColor: const Color(0xFF005A6B),
-                                  onTap: () => setState(() =>
-                                      _activeFilter = _Filter.acceptable),
-                                  isActive:
-                                      _activeFilter == _Filter.acceptable,
+                                  count:       _countOf(AlertType.acceptable),
+                                  label:       'Accept.',
+                                  bg:          AppColors.acceptBg,
+                                  numColor:    AppColors.acceptText,
+                                  lblColor:    const Color(0xFF005A6B),
+                                  onTap:       () => setState(() => _activeFilter = _Filter.acceptable),
+                                  isActive:    _activeFilter == _Filter.acceptable,
                                   activeColor: AppColors.acceptColor,
                                 ),
                                 const SizedBox(width: 8),
                                 _CountCard(
-                                  count: _countOf(AlertType.danger),
-                                  label: 'Danger',
-                                  bg: AppColors.dangerBg,
-                                  numColor: AppColors.dangerText,
-                                  lblColor: const Color(0xFF7A5000),
-                                  onTap: () => setState(
-                                      () => _activeFilter = _Filter.danger),
-                                  isActive: _activeFilter == _Filter.danger,
+                                  count:       _countOf(AlertType.danger),
+                                  label:       'Danger',
+                                  bg:          AppColors.dangerBg,
+                                  numColor:    AppColors.dangerText,
+                                  lblColor:    const Color(0xFF7A5000),
+                                  onTap:       () => setState(() => _activeFilter = _Filter.danger),
+                                  isActive:    _activeFilter == _Filter.danger,
                                   activeColor: AppColors.dangerColor,
                                 ),
                                 const SizedBox(width: 8),
                                 _CountCard(
-                                  count: _countOf(AlertType.spoiled),
-                                  label: 'Spoiled',
-                                  bg: AppColors.spoiledBg,
-                                  numColor: AppColors.spoiledText,
-                                  lblColor: const Color(0xFF2A3E7A),
-                                  onTap: () => setState(
-                                      () => _activeFilter = _Filter.spoiled),
-                                  isActive:
-                                      _activeFilter == _Filter.spoiled,
+                                  count:       _countOf(AlertType.spoiled),
+                                  label:       'Spoiled',
+                                  bg:          AppColors.spoiledBg,
+                                  numColor:    AppColors.spoiledText,
+                                  lblColor:    const Color(0xFF2A3E7A),
+                                  onTap:       () => setState(() => _activeFilter = _Filter.spoiled),
+                                  isActive:    _activeFilter == _Filter.spoiled,
                                   activeColor: AppColors.spoiledColor,
                                 ),
                               ],
                             ),
                             const SizedBox(height: 16),
                             _FilterBar(
-                              active: _activeFilter,
-                              onSelect: (f) =>
-                                  setState(() => _activeFilter = f),
+                              active:   _activeFilter,
+                              onSelect: (f) => setState(() => _activeFilter = f),
                             ),
                             const SizedBox(height: 14),
                             Row(
@@ -529,18 +527,16 @@ class _AlertsScreenState extends State<AlertsScreen>
                                       ? 'All alerts'
                                       : '${_activeFilter.label} alerts',
                                   style: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textMuted,
+                                    fontSize:     11,
+                                    fontWeight:   FontWeight.w600,
+                                    color:        AppColors.textMuted,
                                     letterSpacing: 0.6,
                                   ),
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
                                   '(${_filteredAlerts.length})',
-                                  style: const TextStyle(
-                                      fontSize: 11,
-                                      color: AppColors.textMuted),
+                                  style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
                                 ),
                               ],
                             ),
@@ -558,19 +554,15 @@ class _AlertsScreenState extends State<AlertsScreen>
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(
-                                        Icons.check_circle_outline_rounded,
-                                        size: 44,
-                                        color: AppColors.textMuted
-                                            .withOpacity(0.5)),
+                                    Icon(Icons.check_circle_outline_rounded,
+                                        size:  44,
+                                        color: AppColors.textMuted.withOpacity(0.5)),
                                     const SizedBox(height: 12),
                                     Text(
                                       _activeFilter == _Filter.all
                                           ? 'No alerts — everything looks fresh!'
                                           : 'No ${_activeFilter.label.toLowerCase()} alerts',
-                                      style: const TextStyle(
-                                          fontSize: 13,
-                                          color: AppColors.textSub),
+                                      style: const TextStyle(fontSize: 13, color: AppColors.textSub),
                                       textAlign: TextAlign.center,
                                     ),
                                   ],
@@ -579,15 +571,12 @@ class _AlertsScreenState extends State<AlertsScreen>
                             ),
                           )
                         : SliverPadding(
-                            padding:
-                                const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                             sliver: SliverList(
                               delegate: SliverChildBuilderDelegate(
                                 (ctx, i) => Padding(
-                                  padding:
-                                      const EdgeInsets.only(bottom: 10),
-                                  child: _AlertCard(
-                                      alert: _filteredAlerts[i]),
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child:   _AlertCard(alert: _filteredAlerts[i]),
                                 ),
                                 childCount: _filteredAlerts.length,
                               ),
@@ -596,20 +585,18 @@ class _AlertsScreenState extends State<AlertsScreen>
                   ],
                 ],
 
-                // ── Missing Items Section ────────────────────────────────
+                // ── Missing Items Section ────────────────────────────────────
                 if (_mode == _AlertMode.missing) ...[
                   if (_loadingMissing)
                     const SliverToBoxAdapter(
                       child: Padding(
                         padding: EdgeInsets.only(top: 40),
-                        child: Center(child: CircularProgressIndicator()),
+                        child:   Center(child: CircularProgressIndicator()),
                       ),
                     )
                   else if (_missingError != null)
                     SliverToBoxAdapter(
-                      child: _ErrorView(
-                          message: _missingError!,
-                          onRetry: _fetchMissingItems),
+                      child: _ErrorView(message: _missingError!, onRetry: _fetchMissingItems),
                     )
                   else if (_missingItems.isEmpty)
                     SliverFillRemaining(
@@ -621,14 +608,12 @@ class _AlertsScreenState extends State<AlertsScreen>
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(Icons.search_off_rounded,
-                                  size: 44,
-                                  color:
-                                      AppColors.textMuted.withOpacity(0.5)),
+                                  size:  44,
+                                  color: AppColors.textMuted.withOpacity(0.5)),
                               const SizedBox(height: 12),
                               const Text(
                                 'No missing items — all accounted for!',
-                                style: TextStyle(
-                                    fontSize: 13, color: AppColors.textSub),
+                                style:     TextStyle(fontSize: 13, color: AppColors.textSub),
                                 textAlign: TextAlign.center,
                               ),
                             ],
@@ -639,24 +624,22 @@ class _AlertsScreenState extends State<AlertsScreen>
                   else ...[
                     SliverToBoxAdapter(
                       child: Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                         child: Row(
                           children: [
-                            Text(
+                            const Text(
                               'Awaiting response',
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textMuted,
+                              style: TextStyle(
+                                fontSize:     11,
+                                fontWeight:   FontWeight.w600,
+                                color:        AppColors.textMuted,
                                 letterSpacing: 0.6,
                               ),
                             ),
                             const SizedBox(width: 6),
                             Text(
                               '(${_missingItems.length})',
-                              style: const TextStyle(
-                                  fontSize: 11, color: AppColors.textMuted),
+                              style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
                             ),
                           ],
                         ),
@@ -669,16 +652,91 @@ class _AlertsScreenState extends State<AlertsScreen>
                           (ctx, i) => Padding(
                             padding: const EdgeInsets.only(bottom: 12),
                             child: _MissingItemCard(
-                              item: _missingItems[i],
-                              isResponding: _respondingIds
-                                  .contains(_missingItems[i].id),
-                              onFinished: () => _respondToItem(
-                                  _missingItems[i].id, 'finished'),
-                              onReturned: () => _respondToItem(
-                                  _missingItems[i].id, 'returned'),
+                              item:        _missingItems[i],
+                              isResponding: _respondingIds.contains(_missingItems[i].id),
+                              onFinished:  () => _respondToItem(_missingItems[i].id, 'finished'),
+                              onReturned:  () => _respondToItem(_missingItems[i].id, 'returned'),
                             ),
                           ),
                           childCount: _missingItems.length,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+
+                // ── Incompatible Items Section ───────────────────────────────
+                if (_mode == _AlertMode.incompatible) ...[
+                  if (_loadingIncompatible)
+                    const SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 40),
+                        child:   Center(child: CircularProgressIndicator()),
+                      ),
+                    )
+                  else if (_incompatibleError != null)
+                    SliverToBoxAdapter(
+                      child: _ErrorView(
+                        message: _incompatibleError!,
+                        onRetry: _fetchIncompatibleItems,
+                      ),
+                    )
+                  else if (_incompatibleItems.isEmpty)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(32),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.verified_outlined,
+                                  size:  44,
+                                  color: AppColors.textMuted.withOpacity(0.5)),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'No incompatible items — great storage!',
+                                style:     TextStyle(fontSize: 13, color: AppColors.textSub),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  else ...[
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                        child: Row(
+                          children: [
+                            const Text(
+                              'Incompatible pairs',
+                              style: TextStyle(
+                                fontSize:     11,
+                                fontWeight:   FontWeight.w600,
+                                color:        AppColors.textMuted,
+                                letterSpacing: 0.6,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              '(${_incompatibleItems.length})',
+                              style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (ctx, i) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child:   _IncompatibleItemCard(item: _incompatibleItems[i]),
+                          ),
+                          childCount: _incompatibleItems.length,
                         ),
                       ),
                     ),
@@ -688,14 +746,6 @@ class _AlertsScreenState extends State<AlertsScreen>
             ),
     );
   }
-
-  String? _buildSubtitle() {
-    if (_mode == _AlertMode.status) {
-      return _alerts.isEmpty ? null : '${_alerts.length} active alert${_alerts.length == 1 ? '' : 's'}';
-    } else {
-      return _missingItems.isEmpty ? null : '${_missingItems.length} item${_missingItems.length == 1 ? '' : 's'} need attention';
-    }
-  }
 }
 
 // ── Mode Toggle ───────────────────────────────────────────────────────────────
@@ -703,12 +753,14 @@ class _ModeToggle extends StatelessWidget {
   final _AlertMode mode;
   final int statusCount;
   final int missingCount;
+  final int incompatibleCount;
   final void Function(_AlertMode) onSelect;
 
   const _ModeToggle({
     required this.mode,
     required this.statusCount,
     required this.missingCount,
+    required this.incompatibleCount,
     required this.onSelect,
   });
 
@@ -717,28 +769,37 @@ class _ModeToggle extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color:        AppColors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border:       Border.all(color: AppColors.border),
       ),
       child: Row(
         children: [
           _ToggleBtn(
-            label: 'Status Alerts',
-            icon: Icons.bar_chart_rounded,
-            count: statusCount,
-            isActive: mode == _AlertMode.status,
+            label:       'Status',
+            icon:        Icons.bar_chart_rounded,
+            count:       statusCount,
+            isActive:    mode == _AlertMode.status,
             activeColor: AppColors.primary,
-            onTap: () => onSelect(_AlertMode.status),
+            onTap:       () => onSelect(_AlertMode.status),
           ),
           const SizedBox(width: 4),
           _ToggleBtn(
-            label: 'Missing Items',
-            icon: Icons.search_rounded,
-            count: missingCount,
-            isActive: mode == _AlertMode.missing,
+            label:       'Missing',
+            icon:        Icons.search_rounded,
+            count:       missingCount,
+            isActive:    mode == _AlertMode.missing,
             activeColor: const Color(0xFFD97706),
-            onTap: () => onSelect(_AlertMode.missing),
+            onTap:       () => onSelect(_AlertMode.missing),
+          ),
+          const SizedBox(width: 4),
+          _ToggleBtn(
+            label:       'Incompatible',
+            icon:        Icons.warning_amber_rounded,
+            count:       incompatibleCount,
+            isActive:    mode == _AlertMode.incompatible,
+            activeColor: const Color(0xFFB03A2E),
+            onTap:       () => onSelect(_AlertMode.incompatible),
           ),
         ],
       ),
@@ -747,11 +808,11 @@ class _ModeToggle extends StatelessWidget {
 }
 
 class _ToggleBtn extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final int count;
-  final bool isActive;
-  final Color activeColor;
+  final String    label;
+  final IconData  icon;
+  final int       count;
+  final bool      isActive;
+  final Color     activeColor;
   final VoidCallback onTap;
 
   const _ToggleBtn({
@@ -770,55 +831,44 @@ class _ToggleBtn extends StatelessWidget {
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 220),
-          padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 10),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
           decoration: BoxDecoration(
-            color: isActive ? activeColor : Colors.transparent,
+            color:        isActive ? activeColor : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
             boxShadow: isActive
-                ? [
-                    BoxShadow(
-                      color: activeColor.withOpacity(0.25),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    )
-                  ]
+                ? [BoxShadow(color: activeColor.withOpacity(0.25), blurRadius: 8, offset: const Offset(0, 3))]
                 : null,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                icon,
-                size: 15,
-                color: isActive ? Colors.white : AppColors.textMuted,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight:
-                      isActive ? FontWeight.w600 : FontWeight.w400,
-                  color: isActive ? Colors.white : AppColors.textSub,
+              Icon(icon, size: 14, color: isActive ? Colors.white : AppColors.textMuted),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  label,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize:   11,
+                    fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                    color:      isActive ? Colors.white : AppColors.textSub,
+                  ),
                 ),
               ),
               if (count > 0) ...[
-                const SizedBox(width: 6),
+                const SizedBox(width: 4),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                   decoration: BoxDecoration(
-                    color: isActive
-                        ? Colors.white.withOpacity(0.25)
-                        : activeColor.withOpacity(0.15),
+                    color:        isActive ? Colors.white.withOpacity(0.25) : activeColor.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     '$count',
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize:   9,
                       fontWeight: FontWeight.w600,
-                      color: isActive ? Colors.white : activeColor,
+                      color:      isActive ? Colors.white : activeColor,
                     ),
                   ),
                 ),
@@ -831,10 +881,136 @@ class _ToggleBtn extends StatelessWidget {
   }
 }
 
+// ── Incompatible Item Card ────────────────────────────────────────────────────
+class _IncompatibleItemCard extends StatelessWidget {
+  final IncompatibleItem item;
+  const _IncompatibleItemCard({required this.item});
+
+  static const _redBorder  = Color(0xFFE8A0A0);
+  static const _redBg      = Color(0xFFFFF0F0);
+  static const _redIconBg  = Color(0xFFFFDDDD);
+  static const _redIcon    = Color(0xFFB03A2E);
+  static const _redText    = Color(0xFF7A1010);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color:        AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border:       Border.all(color: _redBorder, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color:      _redIcon.withOpacity(0.08),
+            blurRadius: 12,
+            offset:     const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Icon ──────────────────────────────────────────────────────
+            Container(
+              width:  42,
+              height: 42,
+              decoration: BoxDecoration(
+                color:        _redIconBg,
+                borderRadius: BorderRadius.circular(12),
+                border:       Border.all(color: _redBorder),
+              ),
+              child: const Icon(Icons.warning_amber_rounded, size: 22, color: _redIcon),
+            ),
+            const SizedBox(width: 12),
+
+            // ── Content ───────────────────────────────────────────────────
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Item pair badges
+                  Row(
+                    children: [
+                      _ItemBadge(label: _capitalize(item.itemA)),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 6),
+                        child: Icon(Icons.close_rounded, size: 14, color: _redIcon),
+                      ),
+                      _ItemBadge(label: _capitalize(item.itemB)),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+
+                  // Title
+                  Text(
+                    _capitalize(item.title),
+                    style: const TextStyle(
+                      fontSize:   13,
+                      fontWeight: FontWeight.w600,
+                      color:      _redText,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+
+                  // Description
+                  Text(
+                    item.description,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color:    AppColors.textSub,
+                      height:   1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+
+                  // Timestamp
+                  Text(
+                    item.detectedAt,
+                    style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _capitalize(String s) => s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+}
+
+class _ItemBadge extends StatelessWidget {
+  final String label;
+  const _ItemBadge({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color:        const Color(0xFFFFEAEA),
+        borderRadius: BorderRadius.circular(20),
+        border:       Border.all(color: const Color(0xFFE8A0A0)),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize:   11,
+          fontWeight: FontWeight.w600,
+          color:      Color(0xFF7A1010),
+        ),
+      ),
+    );
+  }
+}
+
 // ── Missing Item Card ─────────────────────────────────────────────────────────
 class _MissingItemCard extends StatelessWidget {
-  final MissingItem item;
-  final bool isResponding;
+  final MissingItem  item;
+  final bool         isResponding;
   final VoidCallback onFinished;
   final VoidCallback onReturned;
 
@@ -849,45 +1025,36 @@ class _MissingItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color:        AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFFFE4B5), width: 1.5),
+        border:       Border.all(color: const Color(0xFFFFE4B5), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFD97706).withOpacity(0.08),
+            color:      const Color(0xFFD97706).withOpacity(0.08),
             blurRadius: 12,
-            offset: const Offset(0, 4),
+            offset:     const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Top row: icon + text ─────────────────────────────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Icon
                 Container(
-                  width: 42,
+                  width:  42,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFF7E6),
+                    color:        const Color(0xFFFFF7E6),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                        color: const Color(0xFFFFD580), width: 1),
+                    border:       Border.all(color: const Color(0xFFFFD580), width: 1),
                   ),
-                  child: const Icon(
-                    Icons.help_outline_rounded,
-                    size: 22,
-                    color: Color(0xFFD97706),
-                  ),
+                  child: const Icon(Icons.help_outline_rounded, size: 22, color: Color(0xFFD97706)),
                 ),
                 const SizedBox(width: 12),
-
-                // Text content
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -898,34 +1065,30 @@ class _MissingItemCard extends StatelessWidget {
                             child: Text(
                               _capitalize(item.itemName),
                               style: const TextStyle(
-                                fontSize: 14,
+                                fontSize:   14,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary,
+                                color:      AppColors.textPrimary,
                               ),
                             ),
                           ),
-                          // Duration badge
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFFF3CD),
+                              color:        const Color(0xFFFFF3CD),
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                  color: const Color(0xFFFFD580)),
+                              border:       Border.all(color: const Color(0xFFFFD580)),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.access_time_rounded,
-                                    size: 10, color: Color(0xFFD97706)),
+                                const Icon(Icons.access_time_rounded, size: 10, color: Color(0xFFD97706)),
                                 const SizedBox(width: 3),
                                 Text(
                                   item.durationLabel,
                                   style: const TextStyle(
-                                    fontSize: 10,
+                                    fontSize:   10,
                                     fontWeight: FontWeight.w600,
-                                    color: Color(0xFFD97706),
+                                    color:      Color(0xFFD97706),
                                   ),
                                 ),
                               ],
@@ -936,20 +1099,12 @@ class _MissingItemCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         '${_capitalize(item.itemName)} has been missing for ${item.durationLabel}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSub,
-                          height: 1.4,
-                        ),
+                        style: const TextStyle(fontSize: 12, color: AppColors.textSub, height: 1.4),
                       ),
                       const SizedBox(height: 3),
                       const Text(
                         'What happened to this item?',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppColors.textMuted,
-                          fontStyle: FontStyle.italic,
-                        ),
+                        style: TextStyle(fontSize: 11, color: AppColors.textMuted, fontStyle: FontStyle.italic),
                       ),
                     ],
                   ),
@@ -957,15 +1112,7 @@ class _MissingItemCard extends StatelessWidget {
               ],
             ),
           ),
-
-          // ── Divider ──────────────────────────────────────────────────
-          Container(
-            height: 1,
-            margin: const EdgeInsets.symmetric(horizontal: 14),
-            color: const Color(0xFFF0E6D3),
-          ),
-
-          // ── Action buttons ───────────────────────────────────────────
+          Container(height: 1, margin: const EdgeInsets.symmetric(horizontal: 14), color: const Color(0xFFF0E6D3)),
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
             child: isResponding
@@ -973,82 +1120,55 @@ class _MissingItemCard extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.symmetric(vertical: 6),
                       child: SizedBox(
-                        width: 22,
+                        width:  22,
                         height: 22,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                              Color(0xFFD97706)),
+                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD97706)),
                         ),
                       ),
                     ),
                   )
                 : Row(
                     children: [
-                      // Finished button
                       Expanded(
                         child: GestureDetector(
                           onTap: onFinished,
                           child: Container(
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 10),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF0FDF4),
+                              color:        const Color(0xFFF0FDF4),
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                  color: AppColors.goodColor
-                                      .withOpacity(0.4)),
+                              border:       Border.all(color: AppColors.goodColor.withOpacity(0.4)),
                             ),
-                            child: Row(
+                            child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(Icons.check_circle_outline_rounded,
-                                    size: 15,
-                                    color: AppColors.goodColor),
+                              children: [
+                                Icon(Icons.check_circle_outline_rounded, size: 15, color: AppColors.goodColor),
                                 SizedBox(width: 6),
-                                Text(
-                                  'Finished',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.goodColor,
-                                  ),
-                                ),
+                                Text('Finished', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.goodColor)),
                               ],
                             ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 8),
-                      // Returned button
                       Expanded(
                         child: GestureDetector(
                           onTap: onReturned,
                           child: Container(
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 10),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFEFF6FF),
+                              color:        const Color(0xFFEFF6FF),
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                  color: AppColors.spoiledColor
-                                      .withOpacity(0.4)),
+                              border:       Border.all(color: AppColors.spoiledColor.withOpacity(0.4)),
                             ),
-                            child: Row(
+                            child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(Icons.keyboard_return_rounded,
-                                    size: 15,
-                                    color: AppColors.spoiledColor),
+                              children: [
+                                Icon(Icons.keyboard_return_rounded, size: 15, color: AppColors.spoiledColor),
                                 SizedBox(width: 6),
-                                Text(
-                                  'Returned',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.spoiledColor,
-                                  ),
-                                ),
+                                Text('Returned', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.spoiledColor)),
                               ],
                             ),
                           ),
@@ -1062,8 +1182,7 @@ class _MissingItemCard extends StatelessWidget {
     );
   }
 
-  String _capitalize(String s) =>
-      s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+  String _capitalize(String s) => s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
 }
 
 // ── Fridge Status Card ────────────────────────────────────────────────────────
@@ -1079,16 +1198,12 @@ class _FridgeStatusCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [Color(0xFF0A4A2A), Color(0xFF1A7A44)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin:  Alignment.topLeft,
+          end:    Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withOpacity(0.25),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          )
+          BoxShadow(color: AppColors.primary.withOpacity(0.25), blurRadius: 12, offset: const Offset(0, 4)),
         ],
       ),
       child: Row(
@@ -1101,56 +1216,35 @@ class _FridgeStatusCard extends StatelessWidget {
               children: [
                 const Text(
                   'Fridge Status',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 11,
-                    letterSpacing: 0.5,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: TextStyle(color: Colors.white70, fontSize: 11, letterSpacing: 0.5, fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    _StatPill(
-                      icon: Icons.thermostat_rounded,
-                      value: '$temp°C',
-                      label: 'Temp',
-                    ),
+                    _StatPill(icon: Icons.thermostat_rounded,  value: '$temp°C',   label: 'Temp'),
                     const SizedBox(width: 10),
-                    _StatPill(
-                      icon: Icons.water_drop_outlined,
-                      value: '$humidity%',
-                      label: 'Humidity',
-                    ),
+                    _StatPill(icon: Icons.water_drop_outlined, value: '$humidity%', label: 'Humidity'),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color:        Colors.white.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        width: 6,
+                        width:  6,
                         height: 6,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF6EE0A0),
-                          shape: BoxShape.circle,
-                        ),
+                        decoration: const BoxDecoration(color: Color(0xFF6EE0A0), shape: BoxShape.circle),
                       ),
                       const SizedBox(width: 6),
                       const Text(
                         'Online · Normal range',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w500),
                       ),
                     ],
                   ),
@@ -1166,17 +1260,16 @@ class _FridgeStatusCard extends StatelessWidget {
 
 class _StatPill extends StatelessWidget {
   final IconData icon;
-  final String value;
-  final String label;
-  const _StatPill(
-      {required this.icon, required this.value, required this.label});
+  final String   value;
+  final String   label;
+  const _StatPill({required this.icon, required this.value, required this.label});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.12),
+        color:        Colors.white.withOpacity(0.12),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -1187,17 +1280,11 @@ class _StatPill extends StatelessWidget {
             children: [
               Icon(icon, size: 12, color: Colors.white70),
               const SizedBox(width: 4),
-              Text(label,
-                  style: const TextStyle(
-                      fontSize: 9, color: Colors.white54)),
+              Text(label, style: const TextStyle(fontSize: 9, color: Colors.white54)),
             ],
           ),
           const SizedBox(height: 2),
-          Text(value,
-              style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white)),
+          Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
         ],
       ),
     );
@@ -1212,13 +1299,12 @@ class _FridgeIllustration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 64,
+      width:  64,
       height: 96,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.12),
+        color:        Colors.white.withOpacity(0.12),
         borderRadius: BorderRadius.circular(14),
-        border:
-            Border.all(color: Colors.white.withOpacity(0.25), width: 1.5),
+        border:       Border.all(color: Colors.white.withOpacity(0.25), width: 1.5),
       ),
       child: Column(
         children: [
@@ -1226,46 +1312,35 @@ class _FridgeIllustration extends StatelessWidget {
             height: 30,
             margin: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.18),
+              color:        Colors.white.withOpacity(0.18),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.ac_unit_rounded,
-                    size: 12, color: Colors.white.withOpacity(0.7)),
-              ],
+              children: [Icon(Icons.ac_unit_rounded, size: 12, color: Colors.white.withOpacity(0.7))],
             ),
           ),
-          Container(
-            height: 1,
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            color: Colors.white.withOpacity(0.2),
-          ),
+          Container(height: 1, margin: const EdgeInsets.symmetric(horizontal: 4), color: Colors.white.withOpacity(0.2)),
           Expanded(
             child: Container(
               margin: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.08),
+                color:        Colors.white.withOpacity(0.08),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _shelf(),
-                  const SizedBox(height: 4),
-                  _shelf(),
-                ],
+                children: [_shelf(), const SizedBox(height: 4), _shelf()],
               ),
             ),
           ),
           Center(
             child: Container(
-              width: 16,
+              width:  16,
               height: 4,
               margin: const EdgeInsets.only(bottom: 6),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.4),
+                color:        Colors.white.withOpacity(0.4),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -1278,7 +1353,7 @@ class _FridgeIllustration extends StatelessWidget {
   Widget _shelf() => Container(
         height: 1,
         margin: const EdgeInsets.symmetric(horizontal: 6),
-        color: Colors.white.withOpacity(0.25),
+        color:  Colors.white.withOpacity(0.25),
       );
 }
 
@@ -1301,32 +1376,21 @@ class _FilterBar extends StatelessWidget {
               onTap: () => onSelect(f),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 7),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                 decoration: BoxDecoration(
-                  color: isActive ? f.activeBg : AppColors.surface,
+                  color:        isActive ? f.activeBg : AppColors.surface,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: isActive ? f.activeBg : AppColors.border,
-                    width: 1,
-                  ),
+                  border:       Border.all(color: isActive ? f.activeBg : AppColors.border),
                   boxShadow: isActive
-                      ? [
-                          BoxShadow(
-                            color: f.activeBg.withOpacity(0.3),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          )
-                        ]
+                      ? [BoxShadow(color: f.activeBg.withOpacity(0.3), blurRadius: 6, offset: const Offset(0, 2))]
                       : null,
                 ),
                 child: Text(
                   f.label,
                   style: TextStyle(
-                    fontSize: 12,
-                    fontWeight:
-                        isActive ? FontWeight.w600 : FontWeight.w400,
-                    color: isActive ? Colors.white : AppColors.textSub,
+                    fontSize:   12,
+                    fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                    color:      isActive ? Colors.white : AppColors.textSub,
                   ),
                 ),
               ),
@@ -1340,7 +1404,7 @@ class _FilterBar extends StatelessWidget {
 
 // ── Error View ────────────────────────────────────────────────────────────────
 class _ErrorView extends StatelessWidget {
-  final String message;
+  final String   message;
   final VoidCallback onRetry;
   const _ErrorView({required this.message, required this.onRetry});
 
@@ -1352,22 +1416,17 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.wifi_off_rounded,
-                size: 48, color: AppColors.textMuted),
+            const Icon(Icons.wifi_off_rounded, size: 48, color: AppColors.textMuted),
             const SizedBox(height: 14),
-            Text(message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    fontSize: 13, color: AppColors.textSub)),
+            Text(message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 13, color: AppColors.textSub)),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: onRetry,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                elevation:       0,
+                shape:           RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
               child: const Text('Retry'),
             ),
@@ -1380,14 +1439,14 @@ class _ErrorView extends StatelessWidget {
 
 // ── Count Card ────────────────────────────────────────────────────────────────
 class _CountCard extends StatelessWidget {
-  final int count;
-  final String label;
-  final Color bg;
-  final Color numColor;
-  final Color lblColor;
+  final int        count;
+  final String     label;
+  final Color      bg;
+  final Color      numColor;
+  final Color      lblColor;
   final VoidCallback onTap;
-  final bool isActive;
-  final Color activeColor;
+  final bool       isActive;
+  final Color      activeColor;
 
   const _CountCard({
     required this.count,
@@ -1406,19 +1465,13 @@ class _CountCard extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          duration:  const Duration(milliseconds: 200),
+          padding:   const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isActive ? activeColor : bg,
+            color:        isActive ? activeColor : bg,
             borderRadius: BorderRadius.circular(12),
             boxShadow: isActive
-                ? [
-                    BoxShadow(
-                      color: activeColor.withOpacity(0.35),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    )
-                  ]
+                ? [BoxShadow(color: activeColor.withOpacity(0.35), blurRadius: 8, offset: const Offset(0, 3))]
                 : null,
           ),
           child: Column(
@@ -1426,9 +1479,9 @@ class _CountCard extends StatelessWidget {
               Text(
                 '$count',
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize:   22,
                   fontWeight: FontWeight.w500,
-                  color: isActive ? Colors.white : numColor,
+                  color:      isActive ? Colors.white : numColor,
                 ),
               ),
               const SizedBox(height: 2),
@@ -1436,9 +1489,7 @@ class _CountCard extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontSize: 9,
-                  color: isActive
-                      ? Colors.white.withOpacity(0.85)
-                      : lblColor,
+                  color:    isActive ? Colors.white.withOpacity(0.85) : lblColor,
                 ),
               ),
             ],
@@ -1459,20 +1510,17 @@ class _AlertCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: alert.bgColor,
+        color:        alert.bgColor,
         borderRadius: BorderRadius.circular(14),
-        border:
-            Border(left: BorderSide(color: alert.borderColor, width: 3)),
+        border:       Border(left: BorderSide(color: alert.borderColor, width: 3)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 34,
+            width:  34,
             height: 34,
-            decoration: BoxDecoration(
-                color: alert.iconBg,
-                borderRadius: BorderRadius.circular(9)),
+            decoration: BoxDecoration(color: alert.iconBg, borderRadius: BorderRadius.circular(9)),
             child: Icon(alert.icon, size: 18, color: alert.iconColor),
           ),
           const SizedBox(width: 12),
@@ -1481,20 +1529,12 @@ class _AlertCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(alert.title,
-                    style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: alert.titleColor)),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: alert.titleColor)),
                 const SizedBox(height: 3),
                 Text(alert.description,
-                    style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSub,
-                        height: 1.4)),
+                    style: const TextStyle(fontSize: 12, color: AppColors.textSub, height: 1.4)),
                 const SizedBox(height: 5),
-                Text(alert.time,
-                    style: const TextStyle(
-                        fontSize: 10, color: AppColors.textMuted)),
+                Text(alert.time, style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
               ],
             ),
           ),

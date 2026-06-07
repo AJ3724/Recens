@@ -39,4 +39,25 @@ class NotificationService {
 
     await _plugin.show(id, title, body, details);
   }
+
+  // static Future<void> showTempAlter({
+
+  // });
+
+  // static Future<void> showMissingItemAlert({
+
+  // });
+
+  // static Future<void> showRecipeSuggestion({
+
+  // });
+
+  // static Future<void> showFridgeCleanReminder({
+
+  // });
+
+  // static Future<void> showArrangeAlert({
+
+  // });
+
 }

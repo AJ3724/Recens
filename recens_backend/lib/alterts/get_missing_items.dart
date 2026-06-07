@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
-import 'db.dart';
+import '../db.dart';
 
 /// GET  /get_missing_items
 /// Fetches only the items that need a response from the user.
