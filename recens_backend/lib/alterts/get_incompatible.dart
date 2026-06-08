@@ -9,32 +9,32 @@ Future<Response> getIncompatibleHandler(Request request) async {
     final conn = await openDb();
 
     final result = await conn.execute(
-      '''
-      SELECT id, item_name, message, created_at
-      FROM   pending_alerts
-      ORDER  BY created_at DESC
-      ''',
-    );
+  '''
+  SELECT id, item_a, item_b, zone, reason, severity, detected_at
+  FROM   proximity_warnings
+  ORDER  BY detected_at DESC
+  ''',
+);
 
     final List<Map<String, dynamic>> alerts = [];
 
     for (final row in result.rows) {
-      final itemName  = row.colByName('item_name')?.toString()  ?? '';
-      final message   = row.colByName('message')?.toString()    ?? '';
-      final createdAt = row.colByName('created_at')?.toString() ?? '';
+  final itemA    = row.colByName('item_a')?.toString()    ?? '';
+  final itemB    = row.colByName('item_b')?.toString()    ?? '';
+  final reason   = row.colByName('reason')?.toString()    ?? '';
+  final severity = row.colByName('severity')?.toString()  ?? '';
 
-      alerts.add({
-        'id':          row.colByName('id')?.toString() ?? '',
-        'item_a':      itemName,
-        'item_b':      '',
-        'title':       '$itemName — incompatible alert',
-        'description': message.isNotEmpty
-            ? message
-            : 'This item may cause storage issues.',
-        'detected_at': _formatTimestamp(createdAt),
-        'type':        'incompatible',
-      });
-    }
+  alerts.add({
+    'id':          row.colByName('id')?.toString() ?? '',
+    'item_a':      itemA,
+    'item_b':      itemB,
+    'title':       '$itemA & $itemB — incompatible',
+    'description': reason,
+    'severity':    severity,
+    'detected_at': _formatTimestamp(row.colByName('detected_at')?.toString() ?? ''),
+    'type':        'incompatible',
+  });
+}
 
     await conn.close();
 

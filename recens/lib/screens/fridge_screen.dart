@@ -47,30 +47,31 @@ class PredictionItem {
   });
 
   factory PredictionItem.fromJson(Map<String, dynamic> json) {
+    int parseIntOrZero(dynamic v) =>
+        v == null ? 0 : int.tryParse(v.toString()) ?? 0;
+
+    double? parseDoubleOrNull(dynamic v) =>
+        v == null ? null : double.tryParse(v.toString());
+
+    int? parseIntOrNull(dynamic v) =>
+        v == null ? null : int.tryParse(v.toString());
+
     return PredictionItem(
-      id: int.parse(json['id'].toString()),
-      itemName: json['item_name'] ?? '',
-      type: json['type'] ?? '',
-      oldTemp: int.parse(json['old_temp'].toString()),
-      newTemp: int.parse(json['new_temp'].toString()),
-      humidity: int.parse(json['humidity'].toString()),
-      initialLife: int.parse(json['initial_life'].toString()),
+      id: parseIntOrZero(json['id']),
+      itemName: json['item_name']?.toString() ?? '',
+      type: json['type']?.toString() ?? '',
+      oldTemp: parseIntOrZero(json['old_temp']),
+      newTemp: parseIntOrZero(json['new_temp']),
+      humidity: parseIntOrZero(json['humidity']),
+      initialLife: parseIntOrZero(json['initial_life']),
       timeBeforeTimeInBetween:
-          int.parse(json['time_before_time_in_between'].toString()),
-      lifeRemaining: int.parse(json['life_remaining'].toString()),
-      status: json['status'] ?? '',
-      itemNameVal: json['item_name_val'] != null
-          ? int.parse(json['item_name_val'].toString())
-          : null,
-      typeVal: json['type_val'] != null
-          ? int.parse(json['type_val'].toString())
-          : null,
-      oldDecay: json['old_decay'] != null
-          ? double.parse(json['old_decay'].toString())
-          : null,
-      spikeDamage: json['spike_damage'] != null
-          ? double.parse(json['spike_damage'].toString())
-          : null,
+          parseIntOrZero(json['time_before_time_in_between']),
+      lifeRemaining: parseIntOrZero(json['life_remaining']),
+      status: json['status']?.toString() ?? '',
+      itemNameVal: parseIntOrNull(json['item_name_val']),
+      typeVal: parseIntOrNull(json['type_val']),
+      oldDecay: parseDoubleOrNull(json['old_decay']),
+      spikeDamage: parseDoubleOrNull(json['spike_damage']),
     );
   }
 
@@ -289,7 +290,7 @@ class _FridgeScreenState extends State<FridgeScreen> {
             title: 'My Fridge',
             subtitle: _items.isEmpty ? null : '${_items.length} items',
             onRefresh: _fetchItems,
-            onNotification: null, // placeholder — wire up as needed
+            onNotification: null,
           ),
 
           // ── Body ────────────────────────────────────────────────────────

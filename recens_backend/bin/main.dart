@@ -9,7 +9,7 @@ import 'package:recens_backend/get_items.dart';
 import 'package:recens_backend/alterts/get_alerts.dart';
 import 'package:recens_backend/get_expiry.dart';
 import 'package:recens_backend/alterts/get_missing_items.dart';
-import 'package:recens_backend/alterts/get_incompatible .dart';
+import 'package:recens_backend/alterts/get_incompatible.dart';
 
 
 void main() async {

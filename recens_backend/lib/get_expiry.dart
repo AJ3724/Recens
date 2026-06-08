@@ -12,7 +12,7 @@ import 'db.dart';
 Future<Response> getExpiryHandler(Request request) async {
   try {
     final conn   = await openDb();
-    final result = await conn.execute('SELECT * FROM predictions WHERE Confirmed = 0');
+    final result = await conn.execute('SELECT * FROM predictions WHERE confirmation = 0');
 
     final items = result.rows.map((row) {
       final map = <String, dynamic>{};
@@ -53,7 +53,7 @@ Future<Response> setExpiryHandler(Request request) async {
 
     final conn = await openDb();
     await conn.execute(
-      'UPDATE predictions SET initial_life = :life , Confirmed = 1 WHERE id = :id',
+      'UPDATE predictions SET initial_life = :life , confirmation = 1 WHERE id = :id',
       {'life': initialLife, 'id': id},
     );
     await conn.close();
