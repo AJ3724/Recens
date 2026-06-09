@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import '../theme.dart';
 import '../services/notification_service.dart';
 import '../widgets/app_header.dart';
+import '../config/api_config.dart';
 
 // ── Status Alert Model ────────────────────────────────────────────────────────
 enum AlertType { good, acceptable, danger, spoiled }
@@ -227,11 +228,11 @@ class _AlertsScreenState extends State<AlertsScreen>
   static const int _fridgeHumidity = 72;
 
   // ── URL helpers ───────────────────────────────────────────────────────────
-  String get _base => kIsWeb ? 'http://localhost:8080' : 'http://192.168.1.8:8080';
-  String get _alertsUrl        => '$_base/get_alerts';
-  String get _missingUrl       => '$_base/get_missing_items';
-  String get _responseUrl      => '$_base/set_response';
-  String get _incompatibleUrl  => '$_base/get_incompatible';
+  // Delete the old _base, _alertsUrl, etc. blocks and use:
+String get _alertsUrl       => ApiConfig.alerts;
+String get _missingUrl      => ApiConfig.missingItems;
+String get _responseUrl     => ApiConfig.setResponse;
+String get _incompatibleUrl => ApiConfig.incompatible;
 
   @override
   void initState() {

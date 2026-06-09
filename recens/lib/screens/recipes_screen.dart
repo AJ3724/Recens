@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import '../theme.dart';
 import '../widgets/shared.dart';
 import '../widgets/app_header.dart';
+import '../config/api_config.dart';
 
 // ── Embedded recipe data ───────────────────────────────────────────────────────
 const String _kRecipesJson = r'''
@@ -109,9 +110,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   _TabMode _tab = _TabMode.aiRecommended;
   bool _ingredientMode = false;
 
-  String get _apiUrl => kIsWeb
-      ? 'http://localhost:8080/get_recipes'
-      : 'http://192.168.1.8:8080/get_recipes';
+  String get _apiUrl => ApiConfig.getRecipes;
 
   @override
   void initState() {

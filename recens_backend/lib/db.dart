@@ -6,13 +6,21 @@ import 'package:dotenv/dotenv.dart';
 Future<MySQLConnection> openDb() async {
   final env = DotEnv(includePlatformEnvironment: true)..load();
 
+// final conn = await MySQLConnection.createConnection(
+//   host:         env['DB_HOST']     ?? 'localhost',
+//   port:         int.parse(env['DB_PORT'] ?? '3306'),
+//   userName:     env['DB_USER']     ?? 'root',
+//   password:     env['DB_PASSWORD'] ?? '',
+//   databaseName: env['DB_NAME']     ?? 'fyp_test',
+//   secure:       false,
+// );
+
 final conn = await MySQLConnection.createConnection(
   host:         env['DB_HOST']     ?? 'localhost',
   port:         int.parse(env['DB_PORT'] ?? '3306'),
   userName:     env['DB_USER']     ?? 'root',
   password:     env['DB_PASSWORD'] ?? '',
   databaseName: env['DB_NAME']     ?? 'fyp_test',
-  secure:       false,
 );
 
   await conn.connect();

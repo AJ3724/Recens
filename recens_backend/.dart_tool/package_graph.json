@@ -22,20 +22,20 @@
       "dependencies": []
     },
     {
-      "name": "dotenv",
-      "version": "4.2.0",
-      "dependencies": [
-        "args",
-        "meta"
-      ]
-    },
-    {
       "name": "mysql_client",
       "version": "0.0.27",
       "dependencies": [
         "buffer",
         "crypto",
         "tuple"
+      ]
+    },
+    {
+      "name": "dotenv",
+      "version": "4.2.0",
+      "dependencies": [
+        "args",
+        "meta"
       ]
     },
     {
@@ -60,16 +60,6 @@
       ]
     },
     {
-      "name": "meta",
-      "version": "1.18.2",
-      "dependencies": []
-    },
-    {
-      "name": "args",
-      "version": "2.7.0",
-      "dependencies": []
-    },
-    {
       "name": "tuple",
       "version": "2.0.2",
       "dependencies": []
@@ -84,6 +74,16 @@
     {
       "name": "buffer",
       "version": "1.2.3",
+      "dependencies": []
+    },
+    {
+      "name": "meta",
+      "version": "1.18.2",
+      "dependencies": []
+    },
+    {
+      "name": "args",
+      "version": "2.7.0",
       "dependencies": []
     },
     {

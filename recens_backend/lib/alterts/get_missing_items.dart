@@ -44,7 +44,7 @@ Future<Response> setResponseHandler(Request request) async {
     final body = await request.readAsString();
     final data = jsonDecode(body) as Map<String, dynamic>;
 
-    final id = data['id'];
+    final id           = data['id'];
     final userResponse = data['user_response'];
 
     if (id == null || userResponse == null) {
@@ -55,12 +55,61 @@ Future<Response> setResponseHandler(Request request) async {
     }
 
     final conn = await openDb();
-    
-    // We update the response and use NOW() to save the exact completion time
-    await conn.execute(
-      'UPDATE pending_alerts SET user_response = :response, responded_at = NOW() WHERE id = :id',
-      {'response': userResponse, 'id': id},
-    );
+
+    if (userResponse == 'returned') {
+      // 1. Get the item_name from pending_alerts
+      final alertResult = await conn.execute(
+        'SELECT item_name FROM pending_alerts WHERE id = :id',
+        {'id': id},
+      );
+
+      if (alertResult.rows.isNotEmpty) {
+        final itemName = alertResult.rows.first.colByName('item_name');
+
+        // 2. Update predictions response column to 'returned'
+        await conn.execute(
+          'UPDATE predictions SET response = :resp WHERE item_name = :name',
+          {'resp': 'returned', 'name': itemName},
+        );
+      }
+
+      // 3. Delete from pending_alerts
+      await conn.execute(
+        'DELETE FROM pending_alerts WHERE id = :id',
+        {'id': id},
+      );
+
+    } else if (userResponse == 'finished') {
+      // 1. Get the item_name from pending_alerts
+      final alertResult = await conn.execute(
+        'SELECT item_name FROM pending_alerts WHERE id = :id',
+        {'id': id},
+      );
+
+      if (alertResult.rows.isNotEmpty) {
+        final itemName = alertResult.rows.first.colByName('item_name');
+
+        // 2. Delete from predictions entirely
+        await conn.execute(
+          'DELETE FROM predictions WHERE item_name = :name',
+          {'name': itemName},
+        );
+      }
+
+      // 3. Delete from pending_alerts
+      await conn.execute(
+        'DELETE FROM pending_alerts WHERE id = :id',
+        {'id': id},
+      );
+
+    } else {
+      // Fallback: just update response and timestamp
+      await conn.execute(
+        'UPDATE pending_alerts SET user_response = :response, responded_at = NOW() WHERE id = :id',
+        {'response': userResponse, 'id': id},
+      );
+    }
+
     await conn.close();
 
     return Response.ok(

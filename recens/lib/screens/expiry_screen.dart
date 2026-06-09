@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import '../theme.dart';
 import '../widgets/app_header.dart';
+import '../config/api_config.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MODEL
@@ -51,8 +52,7 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
   bool _loading = true;
   String? _error;
 
-  String get _baseUrl =>
-      kIsWeb ? 'http://localhost:8080' : 'http://192.168.1.8:8080';
+ String get _baseUrl => ApiConfig.baseUrl;
 
   @override
   void initState() {
@@ -90,14 +90,20 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
   }
 
   Future<void> _saveExpiry(ExpiryItem item) async {
-    try {
-      await http.post(
-        Uri.parse('$_baseUrl/set_expiry'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'id': item.id, 'initial_life': item.initialLife}),
-      );
-    } catch (_) {}
+  try {
+    final res = await http.post(
+      Uri.parse('$_baseUrl/set_expiry'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'id': item.id, 'initial_life': item.initialLife}),
+    ).timeout(const Duration(seconds: 15));
+
+    if (res.statusCode != 200) {
+      debugPrint('set_expiry failed: ${res.statusCode} ${res.body}');
+    }
+  } catch (e) {
+    debugPrint('set_expiry error: $e');
   }
+}
 
   Future<void> _pickDate(ExpiryItem item) async {
     final now = DateTime.now();

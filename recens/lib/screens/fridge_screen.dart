@@ -4,13 +4,11 @@ import 'package:http/http.dart' as http;
 import '../theme.dart';
 import '../widgets/shared.dart';
 import '../widgets/app_header.dart';
+import '../config/api_config.dart';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-String get _apiUrl {
-  if (kIsWeb) return 'http://localhost:8080/get_items';
-  return 'http://192.168.1.8:8080/get_items';
-}
+String get _apiUrl => ApiConfig.getItems;
 
 // ── Model ─────────────────────────────────────────────────────────────────────
 class PredictionItem {
