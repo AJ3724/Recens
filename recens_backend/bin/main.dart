@@ -11,6 +11,9 @@ import 'package:recens_backend/get_expiry.dart';
 import 'package:recens_backend/alterts/get_missing_items.dart';
 import 'package:recens_backend/alterts/get_incompatible.dart';
 
+import 'package:recens_backend/get_avg_temp.dart';
+import 'package:recens_backend/get_waste.dart';
+
 
 void main() async {
   final env  = DotEnv(includePlatformEnvironment: true)..load();
@@ -18,14 +21,16 @@ void main() async {
 
   // ── Router ──────────────────────────────────────────────────────────────────
   final router = Router()
-    ..get('/get_recipes', getRecipesHandler)
-    ..get('/get_items',   getItemsHandler)
-    ..get('/get_alerts',  getAlertsHandler)
-    ..get('/get_expiry',  getExpiryHandler)
-    ..get('/get_missing_items', getMissingItemsHandler) // ✅ Leaves this as a GET request
-    ..post('/set_response', setResponseHandler)         // ✅ Fixed: Changed to .post and matches the app URL
-    ..get('/get_incompatible', getIncompatibleHandler) // ✅ New route for incompatible-item alerts
-    ..post('/set_expiry', setExpiryHandler);
+  ..get('/get_recipes',      getRecipesHandler)
+  ..get('/get_items',        getItemsHandler)
+  ..get('/get_alerts',       getAlertsHandler)
+  ..get('/get_expiry',       getExpiryHandler)
+  ..get('/get_missing_items', getMissingItemsHandler)
+  ..get('/get_incompatible', getIncompatibleHandler)
+  ..get('/get_avg_temp',     getAvgTempHandler)   // ✅ new
+  ..get('/get_waste',        getWasteHandler)     // ✅ new
+  ..post('/set_response',    setResponseHandler)
+  ..post('/set_expiry',      setExpiryHandler);
 
   // ── Middleware ───────────────────────────────────────────────────────────────
   final handler = Pipeline()
