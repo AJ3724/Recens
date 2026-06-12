@@ -10,10 +10,11 @@ import 'package:recens_backend/alterts/get_alerts.dart';
 import 'package:recens_backend/get_expiry.dart';
 import 'package:recens_backend/alterts/get_missing_items.dart';
 import 'package:recens_backend/alterts/get_incompatible.dart';
+import 'package:recens_backend/alterts/get_temp_spikes.dart'; // ✅ new
 
 import 'package:recens_backend/get_avg_temp.dart';
 import 'package:recens_backend/get_waste.dart';
-
+import 'package:recens_backend/get_insights.dart';
 
 void main() async {
   final env  = DotEnv(includePlatformEnvironment: true)..load();
@@ -21,16 +22,18 @@ void main() async {
 
   // ── Router ──────────────────────────────────────────────────────────────────
   final router = Router()
-  ..get('/get_recipes',      getRecipesHandler)
-  ..get('/get_items',        getItemsHandler)
-  ..get('/get_alerts',       getAlertsHandler)
-  ..get('/get_expiry',       getExpiryHandler)
-  ..get('/get_missing_items', getMissingItemsHandler)
-  ..get('/get_incompatible', getIncompatibleHandler)
-  ..get('/get_avg_temp',     getAvgTempHandler)   // ✅ new
-  ..get('/get_waste',        getWasteHandler)     // ✅ new
-  ..post('/set_response',    setResponseHandler)
-  ..post('/set_expiry',      setExpiryHandler);
+    ..get('/get_recipes',       getRecipesHandler)
+    ..get('/get_items',         getItemsHandler)
+    ..get('/get_alerts',        getAlertsHandler)
+    ..get('/get_expiry',        getExpiryHandler)
+    ..get('/get_missing_items', getMissingItemsHandler)
+    ..get('/get_incompatible',  getIncompatibleHandler)
+    ..get('/get_temp_spikes',   getTempSpikesHandler)  // ✅ new
+    ..get('/get_avg_temp',      getAvgTempHandler)
+    ..get('/get_waste',         getWasteHandler)
+    ..get('/get_insights',      getInsightsHandler)
+    ..post('/set_response',     setResponseHandler)
+    ..post('/set_expiry',       setExpiryHandler);
 
   // ── Middleware ───────────────────────────────────────────────────────────────
   final handler = Pipeline()
@@ -45,6 +48,13 @@ void main() async {
   print('     GET  /get_items');
   print('     GET  /get_alerts');
   print('     GET  /get_expiry');
+  print('     GET  /get_missing_items');
+  print('     GET  /get_incompatible');
+  print('     GET  /get_temp_spikes');
+  print('     GET  /get_avg_temp');
+  print('     GET  /get_waste');
+  print('     GET  /get_insights');
+  print('     POST /set_response');
   print('     POST /set_expiry');
 }
 

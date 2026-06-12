@@ -99,22 +99,7 @@ Future<Response> setResponseHandler(Request request) async {
     }
 
     if (userResponse == 'returned') {
-      // 1. Delete pending_alerts
-      await conn.execute(
-        'DELETE FROM pending_alerts WHERE item_name = :name AND user_response IS NULL',
-        {'name': itemName},
-      );
-
-      // 2. Delete from missing_items
-      await conn.execute(
-        'DELETE FROM missing_items WHERE item_name = :name',
-        {'name': itemName},
-      );
-
-      print('returned: deleted $itemName from pending_alerts and missing_items');
-
-    } else {
-      // finished
+      // ── Resolve detection id ─────────────────────────────────────────────
       String? detectionId = foodDetectionId;
       if (detectionId == null) {
         final detResult = await conn.execute(
@@ -126,46 +111,109 @@ Future<Response> setResponseHandler(Request request) async {
         }
       }
 
-      print('setResponseHandler detectionId: $detectionId');
+      print('setResponseHandler (returned) detectionId: $detectionId');
 
-      if (detectionId != null) {
+      // ── Run as single transaction ─────────────────────────────────────────
+      await conn.execute('START TRANSACTION');
+      try {
+        // 1. Update predictions.response → 'returned'
+        if (detectionId != null) {
+          await conn.execute(
+            'UPDATE predictions SET response = :resp WHERE food_detection_id = :did',
+            {'resp': 'returned', 'did': detectionId},
+          );
+        }
+
+        // 2. Delete pending_alerts
         await conn.execute(
-          'UPDATE missing_items SET food_detection_id = NULL WHERE food_detection_id = :did',
-          {'did': detectionId},
+          'DELETE FROM pending_alerts WHERE item_name = :name AND user_response IS NULL',
+          {'name': itemName},
         );
+
+        // 3. Delete from missing_items
         await conn.execute(
-          'UPDATE pending_alerts SET food_detection_id = NULL WHERE food_detection_id = :did',
-          {'did': detectionId},
+          'DELETE FROM missing_items WHERE item_name = :name',
+          {'name': itemName},
         );
+
+        await conn.execute('COMMIT');
+        print('returned: deleted $itemName from pending_alerts and missing_items, updated predictions');
+
+      } catch (e) {
+        await conn.execute('ROLLBACK');
+        rethrow;
       }
 
-      // 1. Delete pending_alerts
-      await conn.execute(
-        'DELETE FROM pending_alerts WHERE item_name = :name',
-        {'name': itemName},
-      );
-
-      // 2. Delete from missing_items
-      await conn.execute(
-        'DELETE FROM missing_items WHERE item_name = :name',
-        {'name': itemName},
-      );
-
-      // 3. Delete food_detections (FKs already nullified above)
-      if (detectionId != null) {
-        await conn.execute(
-          'DELETE FROM food_detections WHERE id = :did',
-          {'did': detectionId},
+    } else {
+      // finished — delete from ALL tables
+      // ── Resolve detection id ─────────────────────────────────────────────
+      String? detectionId = foodDetectionId;
+      if (detectionId == null) {
+        final detResult = await conn.execute(
+          'SELECT id FROM food_detections WHERE item_name = :name ORDER BY id DESC LIMIT 1',
+          {'name': itemName},
         );
+        if (detResult.rows.isNotEmpty) {
+          detectionId = detResult.rows.first.colByName('id')?.toString();
+        }
       }
 
-      // 4. Delete predictions
-      await conn.execute(
-        'DELETE FROM predictions WHERE item_name = :name',
-        {'name': itemName},
-      );
+      print('setResponseHandler (finished) detectionId: $detectionId');
 
-      print('finished: deleted $itemName from all tables');
+      // ── Run as single transaction ─────────────────────────────────────────
+      await conn.execute('START TRANSACTION');
+      try {
+        if (detectionId != null) {
+          // 1. Nullify FK in missing_items
+          await conn.execute(
+            'UPDATE missing_items SET food_detection_id = NULL WHERE food_detection_id = :did',
+            {'did': detectionId},
+          );
+          // 2. Nullify FK in pending_alerts
+          await conn.execute(
+            'UPDATE pending_alerts SET food_detection_id = NULL WHERE food_detection_id = :did',
+            {'did': detectionId},
+          );
+          // 3. Nullify FK in predictions
+          await conn.execute(
+            'UPDATE predictions SET food_detection_id = NULL WHERE food_detection_id = :did',
+            {'did': detectionId},
+          );
+        }
+
+        // 4. Delete pending_alerts
+        await conn.execute(
+          'DELETE FROM pending_alerts WHERE item_name = :name',
+          {'name': itemName},
+        );
+
+        // 5. Delete from missing_items
+        await conn.execute(
+          'DELETE FROM missing_items WHERE item_name = :name',
+          {'name': itemName},
+        );
+
+        // 6. Delete food_detections (all FKs already nullified above)
+        if (detectionId != null) {
+          await conn.execute(
+            'DELETE FROM food_detections WHERE id = :did',
+            {'did': detectionId},
+          );
+        }
+
+        // 7. Delete predictions
+        await conn.execute(
+          'DELETE FROM predictions WHERE item_name = :name',
+          {'name': itemName},
+        );
+
+        await conn.execute('COMMIT');
+        print('finished: deleted $itemName from all tables');
+
+      } catch (e) {
+        await conn.execute('ROLLBACK');
+        rethrow;
+      }
     }
 
     return Response.ok(

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../screens/report_screen.dart';
+import '../screens/temp_spikes_screen.dart';
+
 /// A simple fixed gradient header — title + two icon buttons only.
 /// Nothing is pinned below it; screens render extra controls as sliver content.
 class AppHeader extends StatelessWidget {
@@ -28,20 +30,20 @@ class AppHeader extends StatelessWidget {
     const double toolbarH = 80.0;
 
     return SliverAppBar(
-      pinned: true,
-      floating: false,
-      snap: false,
-      expandedHeight: toolbarH,
-      toolbarHeight: toolbarH,
-      backgroundColor: AppColors.primary,
-      elevation: 0,
-      scrolledUnderElevation: 0,
+      pinned:                  true,
+      floating:                false,
+      snap:                    false,
+      expandedHeight:          toolbarH,
+      toolbarHeight:           toolbarH,
+      backgroundColor:         AppColors.primary,
+      elevation:               0,
+      scrolledUnderElevation:  0,
       automaticallyImplyLeading: false,
       flexibleSpace: FlexibleSpaceBar(
         collapseMode: CollapseMode.none,
         background: _HeaderBackground(
-          title: title,
-          subtitle: subtitle,
+          title:          title,
+          subtitle:       subtitle,
           onNotification: onNotification,
         ),
       ),
@@ -51,7 +53,7 @@ class AppHeader extends StatelessWidget {
 
 // ── Gradient background ───────────────────────────────────────────────────────
 class _HeaderBackground extends StatelessWidget {
-  final String title;
+  final String  title;
   final String? subtitle;
   final VoidCallback? onNotification;
 
@@ -67,8 +69,8 @@ class _HeaderBackground extends StatelessWidget {
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [AppColors.primary, AppColors.medium],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin:  Alignment.topLeft,
+          end:    Alignment.bottomRight,
         ),
       ),
       child: SafeArea(
@@ -78,14 +80,22 @@ class _HeaderBackground extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              // ── Bell → Temperature Spikes screen ──────────────────────────
               _HeaderIconButton(
-                icon: Icons.notifications_outlined,
-                onTap: onNotification,
+                icon:  Icons.notifications_outlined,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (_) => const TempSpikesScreen()),
+                  );
+                },
               ),
+
+              // ── Centre title block ─────────────────────────────────────────
               Expanded(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize:       MainAxisSize.min,
+                  mainAxisAlignment:  MainAxisAlignment.center,
                   children: [
                     _OrnamentalDivider(),
                     const SizedBox(height: 4),
@@ -93,11 +103,11 @@ class _HeaderBackground extends StatelessWidget {
                       title,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
+                        color:       Colors.white,
+                        fontSize:    22,
+                        fontWeight:  FontWeight.w800,
                         letterSpacing: -0.3,
-                        height: 1.1,
+                        height:      1.1,
                       ),
                     ),
                     if (subtitle != null) ...[
@@ -106,7 +116,7 @@ class _HeaderBackground extends StatelessWidget {
                         subtitle!,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                          color: Colors.white60,
+                          color:    Colors.white60,
                           fontSize: 11,
                         ),
                       ),
@@ -116,8 +126,10 @@ class _HeaderBackground extends StatelessWidget {
                   ],
                 ),
               ),
+
+              // ── Bar chart → Report screen ──────────────────────────────────
               _HeaderIconButton(
-                icon: Icons.bar_chart_rounded,
+                icon:  Icons.bar_chart_rounded,
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const ReportScreen()),
@@ -134,7 +146,7 @@ class _HeaderBackground extends StatelessWidget {
 
 // ── Small rounded icon button ─────────────────────────────────────────────────
 class _HeaderIconButton extends StatelessWidget {
-  final IconData icon;
+  final IconData     icon;
   final VoidCallback? onTap;
 
   const _HeaderIconButton({required this.icon, this.onTap});
@@ -144,10 +156,10 @@ class _HeaderIconButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 36,
+        width:  36,
         height: 36,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.15),
+          color:        Colors.white.withOpacity(0.15),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(icon, size: 18, color: Colors.white),
@@ -166,7 +178,7 @@ class _OrnamentalDivider extends StatelessWidget {
         Container(width: 32, height: 0.8, color: Colors.white38),
         const SizedBox(width: 6),
         Container(
-          width: 5,
+          width:  5,
           height: 5,
           decoration: const BoxDecoration(
             color: Colors.white38,

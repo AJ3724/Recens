@@ -69,6 +69,26 @@ class _WasteData {
   });
 }
 
+class _InsightsData {
+  final String       dietType;
+  final List<String> topItems;
+  final List<String> wastedItems;
+  final List<String> fastConsumed;
+  final String       llmSummary;
+  final double       confidence;
+  final String       generatedAt;
+
+  const _InsightsData({
+    required this.dietType,
+    required this.topItems,
+    required this.wastedItems,
+    required this.fastConsumed,
+    required this.llmSummary,
+    required this.confidence,
+    required this.generatedAt,
+  });
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────────────────────────────────────
@@ -107,6 +127,10 @@ class _ReportScreenState extends State<ReportScreen>
   bool        _wasteLoading = true;
   String?     _wasteError;
 
+  _InsightsData? _insightsData;
+  bool           _insightsLoading = true;
+  String?        _insightsError;
+
   late AnimationController _animCtrl;
   late Animation<double>   _fadeAnim;
 
@@ -119,6 +143,7 @@ class _ReportScreenState extends State<ReportScreen>
     _animCtrl.forward();
     _fetchTemp();
     _fetchWaste();
+    _fetchInsights();
   }
 
   @override
@@ -200,6 +225,36 @@ class _ReportScreenState extends State<ReportScreen>
       });
     } catch (e) {
       setState(() { _wasteError = e.toString(); _wasteLoading = false; });
+    }
+  }
+
+  Future<void> _fetchInsights() async {
+    setState(() { _insightsLoading = true; _insightsError = null; });
+    try {
+      final uri = Uri.parse('${AppConfig.baseUrl}/get_insights');
+      final res = await http.get(uri).timeout(const Duration(seconds: 10));
+      if (res.statusCode != 200) throw Exception('Server ${res.statusCode}');
+      final json = jsonDecode(res.body) as Map<String, dynamic>;
+
+      if (json['available'] != true) {
+        setState(() { _insightsData = null; _insightsLoading = false; });
+        return;
+      }
+
+      setState(() {
+        _insightsData = _InsightsData(
+          dietType:     json['diet_type']?.toString()                            ?? 'balanced',
+          topItems:     List<String>.from(json['top_items']     as List? ?? []),
+          wastedItems:  List<String>.from(json['wasted_items']  as List? ?? []),
+          fastConsumed: List<String>.from(json['fast_consumed'] as List? ?? []),
+          llmSummary:   json['llm_summary']?.toString()                          ?? '',
+          confidence:   (json['confidence']  as num?)?.toDouble()                ?? 0.0,
+          generatedAt:  json['generated_at']?.toString()                         ?? '',
+        );
+        _insightsLoading = false;
+      });
+    } catch (e) {
+      setState(() { _insightsError = e.toString(); _insightsLoading = false; });
     }
   }
 
@@ -332,6 +387,7 @@ class _ReportScreenState extends State<ReportScreen>
                 ),
                 const SizedBox(height: 20),
 
+                // ── Temperature card ───────────────────────────────────────
                 _ReportCard(
                   title:    'Fridge Temperature',
                   subtitle: _showWeekly
@@ -362,6 +418,7 @@ class _ReportScreenState extends State<ReportScreen>
 
                 const SizedBox(height: 20),
 
+                // ── Waste card ─────────────────────────────────────────────
                 _ReportCard(
                   title:    'Waste Reduced',
                   subtitle: 'Spoiled & left-out items per month',
@@ -387,6 +444,25 @@ class _ReportScreenState extends State<ReportScreen>
                               currentMonth: currentWaste!,
                               fadeAnim:     _fadeAnim,
                             ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // ── Food Intelligence card ─────────────────────────────────
+                _ReportCard(
+                  title:    'Food Intelligence',
+                  subtitle: 'Personalised insights from your fridge',
+                  icon:      Icons.psychology_rounded,
+                  iconColor: const Color(0xFF7C3AED),
+                  child: _insightsLoading
+                      ? _LoadingBox()
+                      : _insightsError != null
+                          ? _ErrorBox(
+                              message: _insightsError!,
+                              onRetry: _fetchInsights)
+                          : _insightsData == null
+                              ? const _EmptyChart()
+                              : _InsightsCardBody(data: _insightsData!),
                 ),
 
                 const SizedBox(height: 32),
@@ -615,6 +691,237 @@ class _WasteCardBody extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Insights card body
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _InsightsCardBody extends StatelessWidget {
+  final _InsightsData data;
+  const _InsightsCardBody({required this.data});
+
+  static const _purple       = Color(0xFF7C3AED);
+  static const _purpleBg     = Color(0xFFF5F3FF);
+  static const _purpleBorder = Color(0xFFDDD6FE);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+
+        // ── Diet type badge ───────────────────────────────────────────────
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color:        _purpleBg,
+                borderRadius: BorderRadius.circular(20),
+                border:       Border.all(color: _purpleBorder),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.restaurant_rounded,
+                      size: 12, color: _purple),
+                  const SizedBox(width: 5),
+                  Text(
+                    '${_capitalize(data.dietType)} diet detected',
+                    style: const TextStyle(
+                      fontSize:   11,
+                      fontWeight: FontWeight.w600,
+                      color:      _purple,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Spacer(),
+            Text(
+              '${(data.confidence * 100).toStringAsFixed(0)}% confidence',
+              style: const TextStyle(
+                  fontSize: 10, color: AppColors.textMuted),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 14),
+
+        // ── Claude summary ────────────────────────────────────────────────
+        if (data.llmSummary.isNotEmpty)
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color:        _purpleBg,
+              borderRadius: BorderRadius.circular(12),
+              border:       Border.all(color: _purpleBorder, width: 0.8),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width:  28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color:        _purple.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.auto_awesome_rounded,
+                      size: 15, color: _purple),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    data.llmSummary,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color:    AppColors.textPrimary,
+                      height:   1.55,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+        const SizedBox(height: 14),
+
+        // ── Most stocked ──────────────────────────────────────────────────
+        if (data.topItems.isNotEmpty) ...[
+          const Text(
+            'MOST STOCKED',
+            style: TextStyle(
+              fontSize:      9,
+              fontWeight:    FontWeight.w700,
+              color:         AppColors.textMuted,
+              letterSpacing: 0.8,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing:    6,
+            runSpacing: 6,
+            children: data.topItems
+                .map((item) => _InsightChip(
+                      label: _capitalize(item),
+                      color: AppColors.goodColor,
+                      bg:    AppColors.goodBg,
+                      icon:  Icons.check_circle_rounded,
+                    ))
+                .toList(),
+          ),
+          const SizedBox(height: 12),
+        ],
+
+        // ── Tends to waste ────────────────────────────────────────────────
+        if (data.wastedItems.isNotEmpty) ...[
+          const Text(
+            'TENDS TO WASTE',
+            style: TextStyle(
+              fontSize:      9,
+              fontWeight:    FontWeight.w700,
+              color:         AppColors.textMuted,
+              letterSpacing: 0.8,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing:    6,
+            runSpacing: 6,
+            children: data.wastedItems
+                .map((item) => _InsightChip(
+                      label: _capitalize(item),
+                      color: AppColors.dangerColor,
+                      bg:    AppColors.dangerBg,
+                      icon:  Icons.warning_rounded,
+                    ))
+                .toList(),
+          ),
+          const SizedBox(height: 12),
+        ],
+
+        // ── Goes fast ─────────────────────────────────────────────────────
+        if (data.fastConsumed.isNotEmpty) ...[
+          const Text(
+            'GOES FAST',
+            style: TextStyle(
+              fontSize:      9,
+              fontWeight:    FontWeight.w700,
+              color:         AppColors.textMuted,
+              letterSpacing: 0.8,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing:    6,
+            runSpacing: 6,
+            children: data.fastConsumed
+                .map((item) => _InsightChip(
+                      label: _capitalize(item),
+                      color: AppColors.acceptColor,
+                      bg:    AppColors.acceptBg,
+                      icon:  Icons.bolt_rounded,
+                    ))
+                .toList(),
+          ),
+          const SizedBox(height: 10),
+        ],
+
+        // ── Generated at ──────────────────────────────────────────────────
+        if (data.generatedAt.isNotEmpty)
+          Text(
+            'Last updated: ${data.generatedAt.length >= 16 ? data.generatedAt.substring(0, 16).replaceAll('T', ' · ') : data.generatedAt}',
+            style: const TextStyle(fontSize: 9, color: AppColors.textMuted),
+          ),
+      ],
+    );
+  }
+
+  static String _capitalize(String s) =>
+      s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+}
+
+class _InsightChip extends StatelessWidget {
+  final String   label;
+  final Color    color;
+  final Color    bg;
+  final IconData icon;
+
+  const _InsightChip({
+    required this.label,
+    required this.color,
+    required this.bg,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+      decoration: BoxDecoration(
+        color:        bg,
+        borderRadius: BorderRadius.circular(20),
+        border:       Border.all(color: color.withOpacity(0.35), width: 0.8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 11, color: color),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize:   11,
+              fontWeight: FontWeight.w600,
+              color:      color,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -1212,6 +1519,8 @@ class _LoadingBox extends StatelessWidget {
 }
 
 class _EmptyChart extends StatelessWidget {
+  const _EmptyChart();
+
   @override
   Widget build(BuildContext context) => const SizedBox(
         height: 80,
@@ -1233,7 +1542,7 @@ class _ErrorBox extends StatelessWidget {
         height: 80,
         child: Center(
           child: Column(
-            mainAxisSize:      MainAxisSize.min,   // ← shrink to content
+            mainAxisSize:      MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.wifi_off_rounded,
@@ -1244,10 +1553,10 @@ class _ErrorBox extends StatelessWidget {
               TextButton(
                 onPressed: onRetry,
                 style: TextButton.styleFrom(
-                  minimumSize:    Size.zero,
-                  padding:        const EdgeInsets.symmetric(
+                  minimumSize:   Size.zero,
+                  padding:       const EdgeInsets.symmetric(
                       horizontal: 12, vertical: 4),
-                  tapTargetSize:  MaterialTapTargetSize.shrinkWrap,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 child: const Text('Retry',
                     style: TextStyle(
